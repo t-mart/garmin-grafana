@@ -1,5 +1,5 @@
 [project]
-name = "garmin-grafana"
+name = "garmin-grafana-timescaledb"
 version = "0.3.0"
 description = "A Python application to fetch Garmin health data and populate it in an InfluxDB Database, for visualizing long term health trends with Grafana"
 readme = "README.md"
