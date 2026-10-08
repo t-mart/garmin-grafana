@@ -7,7 +7,14 @@ from datetime import date, datetime, timedelta
 from threading import Event
 from zoneinfo import ZoneInfo
 
-from .collector import DEFAULT_SELECTION, ENDPOINTS, Collector, collect_weather, login
+from .collector import (
+    DEFAULT_SELECTION,
+    ENDPOINTS,
+    Collector,
+    collect_weather,
+    login,
+    rebuild,
+)
 from .derive import DISTANCES, derive
 from .metrics import observe_cycle, serve
 from .storage import Store, connect
@@ -18,7 +25,7 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument(
         "command",
         nargs="?",
-        choices=("sync", "init", "login", "derive"),
+        choices=("sync", "init", "login", "derive", "rebuild"),
         default="sync",
     )
     result.add_argument(
@@ -64,14 +71,18 @@ def run(args: argparse.Namespace) -> None:
         ).fetchone()
         if not acquired or not acquired["acquired"]:
             raise ValueError("Another collector holds the database lock.")
+        if args.command == "rebuild":
+            rebuild(store)
+            derive(store, DISTANCES)
+            return
         if args.command == "derive":
-            derive(store, DISTANCES, zone)
+            derive(store, DISTANCES)
             collect_weather(store)
             return
         stop = Event()
         for sig in (signal.SIGINT, signal.SIGTERM):
             signal.signal(sig, lambda *_: stop.set())
-        collector = Collector(login(), store, zone, delay, args.force, stop)
+        collector = Collector(login(), store, delay, args.force, stop)
         collector.fetch("get_user_profile")
         while not stop.is_set():
             today = datetime.now(zone).date()
@@ -120,7 +131,7 @@ def collect_cycle(
         day -= timedelta(days=1)
     if collector.stop.is_set():
         raise InterruptedError("Collection stopped.")
-    derive(store, DISTANCES, collector.zone)
+    derive(store, DISTANCES)
     collect_weather(store)
     if collector.stop.is_set():
         raise InterruptedError("Collection stopped.")

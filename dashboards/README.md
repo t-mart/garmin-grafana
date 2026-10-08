@@ -16,12 +16,11 @@ Health shows metrics within the time range. Daily averages include complete loca
 Records shows the fastest effort in each run and the record progression across imported history.
 Its Distance variable reads the distances that have recorded efforts.
 
-The queries use views in the `garmin` schema. Distances, speeds, temperatures, and weights use imperial display units.
+The queries read tables in the `garmin` schema. Distances, speeds, temperatures, and weights use imperial display units.
 Vertical oscillation uses centimeters. Stride length uses meters.
-Raw Garmin values retain their original units in the archive.
+The tables keep the Garmin and FIT units. The queries convert them.
 
 The Health sleep chart requires the Business Charts plugin (`volkovlabs-echarts-panel`).
-It uses five-minute stage samples and local clock times on a reference day.
-The collector timezone must match the dashboard timezone for this chart.
+It samples the Garmin sleep levels every five minutes and shows local clock times on a reference day.
 
 Links between dashboards use the URLs above. If a dashboard UID changes, update those links.

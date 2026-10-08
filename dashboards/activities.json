@@ -96,7 +96,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"distance\" / 1609.344 AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "rawSql": "SELECT \"distance\" / 1609.344 AS \"Value\"\nFROM garmin.activities\nWHERE \"activityId\" = ${Activity:sqlstring}",
           "format": "table",
           "hide": false
         }
@@ -154,7 +154,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"elapsedDuration\" AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "rawSql": "SELECT \"elapsedDuration\" AS \"Value\"\nFROM garmin.activities\nWHERE \"activityId\" = ${Activity:sqlstring}",
           "format": "table",
           "hide": false
         }
@@ -212,7 +212,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT 1609.344 / NULLIF(\"averageSpeed\", 0) AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "rawSql": "SELECT 1609.344 / NULLIF(\"averageSpeed\", 0) AS \"Value\"\nFROM garmin.activities\nWHERE \"activityId\" = ${Activity:sqlstring}",
           "format": "table",
           "hide": false
         }
@@ -270,7 +270,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"averageHR\" AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "rawSql": "SELECT \"averageHR\" AS \"Value\"\nFROM garmin.activities\nWHERE \"activityId\" = ${Activity:sqlstring}",
           "format": "table",
           "hide": false
         }
@@ -328,7 +328,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"maxHR\" AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "rawSql": "SELECT \"maxHR\" AS \"Value\"\nFROM garmin.activities\nWHERE \"activityId\" = ${Activity:sqlstring}",
           "format": "table",
           "hide": false
         }
@@ -386,7 +386,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"elevationGain\" * 3.28084 AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "rawSql": "SELECT \"elevationGain\" * 3.28084 AS \"Value\"\nFROM garmin.activities\nWHERE \"activityId\" = ${Activity:sqlstring}",
           "format": "table",
           "hide": false
         }
@@ -444,7 +444,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"calories\" AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "rawSql": "SELECT \"calories\" AS \"Value\"\nFROM garmin.activities\nWHERE \"activityId\" = ${Activity:sqlstring}",
           "format": "table",
           "hide": false
         }
@@ -502,7 +502,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"aerobicTrainingEffect\" AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "rawSql": "SELECT \"aerobicTrainingEffect\" AS \"Value\"\nFROM garmin.activities\nWHERE \"activityId\" = ${Activity:sqlstring}",
           "format": "table",
           "hide": false
         }
@@ -560,7 +560,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"Temperature\" AS \"Value\"\nFROM garmin.\"ActivityWeather\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT temperature_2m AS \"Value\"\nFROM garmin.activity_weather\nWHERE activity_id = ${Activity:sqlstring}\nORDER BY time",
           "format": "table",
           "hide": false
         }
@@ -619,7 +619,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"FeelsLike\" AS \"Value\"\nFROM garmin.\"ActivityWeather\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT apparent_temperature AS \"Value\"\nFROM garmin.activity_weather\nWHERE activity_id = ${Activity:sqlstring}\nORDER BY time",
           "format": "table",
           "hide": false
         }
@@ -678,7 +678,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"Humidity\" AS \"Value\"\nFROM garmin.\"ActivityWeather\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT relative_humidity_2m AS \"Value\"\nFROM garmin.activity_weather\nWHERE activity_id = ${Activity:sqlstring}\nORDER BY time",
           "format": "table",
           "hide": false
         }
@@ -737,7 +737,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"Wind\" AS \"Value\"\nFROM garmin.\"ActivityWeather\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT round(wind_speed_10m) || ' mph ' || (ARRAY['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'])[round(wind_direction_10m / 22.5)::int % 16 + 1] AS \"Value\"\nFROM garmin.activity_weather\nWHERE activity_id = ${Activity:sqlstring}\nORDER BY time",
           "format": "table",
           "hide": false
         }
@@ -883,7 +883,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Index\" AS \"Lap\", \"Distance\" / 1609.344 AS \"Distance\", \"Elapsed_Time\" AS \"Duration\", \"Elapsed_Time\" / NULLIF(\"Distance\" / 1609.344, 0) AS \"Pace\", \"Avg_HR\" AS \"Avg HR\", \"Max_HR\" AS \"Max HR\", \"Ascent\" * 3.28084 AS \"Ascent\", \"Descent\" * 3.28084 AS \"Descent\", (\"Ascent\" - \"Descent\") * 3.28084 AS \"Net elevation\"\nFROM garmin.\"ActivityLap\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT start_time AS \"Time\", row_number() OVER (ORDER BY start_time) AS \"Lap\", total_distance / 1609.344 AS \"Distance\", total_elapsed_time AS \"Duration\", total_elapsed_time / NULLIF(total_distance / 1609.344, 0) AS \"Pace\", avg_heart_rate AS \"Avg HR\", max_heart_rate AS \"Max HR\", total_ascent * 3.28084 AS \"Ascent\", total_descent * 3.28084 AS \"Descent\", (total_ascent - total_descent) * 3.28084 AS \"Net elevation\"\nFROM garmin.fit_lap\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY start_time",
           "format": "table",
           "hide": false
         }
@@ -1045,7 +1045,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Latitude\" AS \"lat\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", position_lat * (180.0 / 2147483648) AS \"lat\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -1057,7 +1057,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Longitude\" AS \"lon\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", position_long * (180.0 / 2147483648) AS \"lon\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -1069,7 +1069,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"HeartRate\" AS \"HR\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", heart_rate AS \"HR\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -1081,7 +1081,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Speed\" * 2.23694 AS \"Speed (mph)\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", coalesce(enhanced_speed, speed) * 2.23694 AS \"Speed (mph)\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
@@ -1298,7 +1298,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Latitude\" AS \"lat\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", position_lat * (180.0 / 2147483648) AS \"lat\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -1310,7 +1310,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Longitude\" AS \"lon\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", position_long * (180.0 / 2147483648) AS \"lon\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -1322,7 +1322,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"HeartRate\" AS \"HR\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", heart_rate AS \"HR\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -1334,7 +1334,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Speed\" AS \"speed\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", coalesce(enhanced_speed, speed) AS \"speed\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -1346,7 +1346,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"hrZoneLowBoundary_1\" AS \"Zone 1\", \"hrZoneLowBoundary_2\" AS \"Zone 2\", \"hrZoneLowBoundary_3\" AS \"Zone 3\", \"hrZoneLowBoundary_4\" AS \"Zone 4\", \"hrZoneLowBoundary_5\" AS \"Zone 5\"\nFROM garmin.\"ActivitySummary\" WHERE \"activityType\" != 'No Activity' AND \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT a.\"startTimeGMT\" AS \"Time\", max(z.\"zoneLowBoundary\") FILTER (WHERE z.\"zoneNumber\" = 1) AS \"Zone 1\", max(z.\"zoneLowBoundary\") FILTER (WHERE z.\"zoneNumber\" = 2) AS \"Zone 2\", max(z.\"zoneLowBoundary\") FILTER (WHERE z.\"zoneNumber\" = 3) AS \"Zone 3\", max(z.\"zoneLowBoundary\") FILTER (WHERE z.\"zoneNumber\" = 4) AS \"Zone 4\", max(z.\"zoneLowBoundary\") FILTER (WHERE z.\"zoneNumber\" = 5) AS \"Zone 5\"\nFROM garmin.activities a JOIN garmin.\"hrTimeInZones\" z USING (\"activityId\")\nWHERE a.\"activityId\" = ${Activity:sqlstring}\nGROUP BY a.\"startTimeGMT\"",
           "format": "table",
           "hide": false
         }
@@ -1493,7 +1493,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"HeartRate\" AS \"Heart rate\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Elapsed\", heart_rate AS \"Heart rate\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -1505,7 +1505,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"hrZoneLowBoundary_1\" AS \"Zone 1\", \"hrZoneLowBoundary_2\" AS \"Zone 2\", \"hrZoneLowBoundary_3\" AS \"Zone 3\", \"hrZoneLowBoundary_4\" AS \"Zone 4\", \"hrZoneLowBoundary_5\" AS \"Zone 5\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "rawSql": "SELECT a.\"startTimeGMT\" AS \"Time\", max(z.\"zoneLowBoundary\") FILTER (WHERE z.\"zoneNumber\" = 1) AS \"Zone 1\", max(z.\"zoneLowBoundary\") FILTER (WHERE z.\"zoneNumber\" = 2) AS \"Zone 2\", max(z.\"zoneLowBoundary\") FILTER (WHERE z.\"zoneNumber\" = 3) AS \"Zone 3\", max(z.\"zoneLowBoundary\") FILTER (WHERE z.\"zoneNumber\" = 4) AS \"Zone 4\", max(z.\"zoneLowBoundary\") FILTER (WHERE z.\"zoneNumber\" = 5) AS \"Zone 5\"\nFROM garmin.activities a JOIN garmin.\"hrTimeInZones\" z USING (\"activityId\")\nWHERE a.\"activityId\" = ${Activity:sqlstring}\nGROUP BY a.\"startTimeGMT\"",
           "format": "table",
           "hide": false
         }
@@ -1669,7 +1669,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Elapsed\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -1681,7 +1681,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", 1609.344 / \"Speed\" AS \"Pace\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"Speed\" > 0.894\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", 1609.344 / coalesce(enhanced_speed, speed) AS \"Pace\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring} AND coalesce(enhanced_speed, speed) > 0.894\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
@@ -1805,7 +1805,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", (\"Cadence\" + \"Fractional_Cadence\") * 2 AS \"Cadence\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"Cadence\" >= 25\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Elapsed\", (cadence + coalesce(fractional_cadence, 0)) * 2 AS \"Cadence\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring} AND cadence >= 25\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
@@ -1897,7 +1897,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"Altitude\" * 3.28084 AS \"Altitude\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Elapsed\", coalesce(enhanced_altitude, altitude) * 3.28084 AS \"Altitude\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
@@ -1989,7 +1989,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"Power\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Elapsed\", power AS \"Power\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
@@ -2105,7 +2105,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"Stance_Time\" AS \"Ground contact time\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Elapsed\", stance_time AS \"Ground contact time\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
@@ -2221,7 +2221,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"Vertical_Oscillation\" / 10 AS \"Vertical oscillation\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Elapsed\", vertical_oscillation / 10 AS \"Vertical oscillation\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
@@ -2337,7 +2337,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"Step_Length\" / 1000 AS \"Stride length\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Elapsed\", step_length / 1000 AS \"Stride length\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
@@ -2483,7 +2483,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"HeartRate\" AS \"Heart Rate\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", heart_rate AS \"Heart Rate\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -2495,7 +2495,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Speed\" * 2.23694 AS \"Speed\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"Speed\" > 0.894\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", coalesce(enhanced_speed, speed) * 2.23694 AS \"Speed\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring} AND coalesce(enhanced_speed, speed) > 0.894\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -2507,7 +2507,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Duration\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Duration\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
@@ -2668,7 +2668,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Speed\" * 2.23694 AS \"Speed (mph)\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"Speed\" > 0.894\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", coalesce(enhanced_speed, speed) * 2.23694 AS \"Speed (mph)\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring} AND coalesce(enhanced_speed, speed) > 0.894\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         },
@@ -2680,7 +2680,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"HeartRate\" AS \"Heart Rate\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "rawSql": "SELECT \"timestamp\" AS \"Time\", heart_rate AS \"Heart Rate\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
@@ -2709,11 +2709,11 @@
           "type": "grafana-postgresql-datasource",
           "uid": "garmin_timescaledb"
         },
-        "definition": "SELECT \"Label\" AS __text, \"ActivityID\" AS __value FROM garmin.\"ActivityIndex\" ORDER BY time DESC",
+        "definition": "SELECT to_char(day, 'YYYY-MM-DD') || ' ' || name || coalesce(' (' || nullif(concat_ws(', ', CASE WHEN strpos(lower(name), lower(kind)) = 0 THEN kind END, CASE WHEN distance > 0 THEN to_char(distance / 1609.344, 'FM9990.00') || ' mi' END), '') || ')', '') AS __text, id AS __value\nFROM (SELECT a.\"activityId\" AS id, a.\"startTimeGMT\" AS start, a.\"startTimeLocal\" AS day, a.distance, CASE WHEN coalesce(a.\"locationName\", '') <> '' AND strpos(lower(coalesce(nullif(a.\"activityName\", ''), 'Untitled')), lower(a.\"locationName\")) = 0 THEN a.\"locationName\" || ' - ' ELSE '' END || coalesce(nullif(a.\"activityName\", ''), 'Untitled') AS name, upper(left(replace(t.\"typeKey\", '_', ' '), 1)) || substr(replace(t.\"typeKey\", '_', ' '), 2) AS kind FROM garmin.activities a LEFT JOIN garmin.\"activityType\" t ON t.\"typeId\" = a.\"activityType\") AS activities\nORDER BY start DESC",
         "label": "Activity",
         "name": "Activity",
         "options": [],
-        "query": "SELECT \"Label\" AS __text, \"ActivityID\" AS __value FROM garmin.\"ActivityIndex\" ORDER BY time DESC",
+        "query": "SELECT to_char(day, 'YYYY-MM-DD') || ' ' || name || coalesce(' (' || nullif(concat_ws(', ', CASE WHEN strpos(lower(name), lower(kind)) = 0 THEN kind END, CASE WHEN distance > 0 THEN to_char(distance / 1609.344, 'FM9990.00') || ' mi' END), '') || ')', '') AS __text, id AS __value\nFROM (SELECT a.\"activityId\" AS id, a.\"startTimeGMT\" AS start, a.\"startTimeLocal\" AS day, a.distance, CASE WHEN coalesce(a.\"locationName\", '') <> '' AND strpos(lower(coalesce(nullif(a.\"activityName\", ''), 'Untitled')), lower(a.\"locationName\")) = 0 THEN a.\"locationName\" || ' - ' ELSE '' END || coalesce(nullif(a.\"activityName\", ''), 'Untitled') AS name, upper(left(replace(t.\"typeKey\", '_', ' '), 1)) || substr(replace(t.\"typeKey\", '_', ' '), 2) AS kind FROM garmin.activities a LEFT JOIN garmin.\"activityType\" t ON t.\"typeId\" = a.\"activityType\") AS activities\nORDER BY start DESC",
         "refresh": 2,
         "regex": "",
         "sort": 0,

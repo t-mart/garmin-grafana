@@ -1,13 +1,14 @@
 import json
 import os
+import re
 import unittest
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, LiteralString, cast
-from zoneinfo import ZoneInfo
+from typing import LiteralString, cast
 
 from garmin_grafana.derive import Distance, derive
-from garmin_grafana.storage import Sample, Store, connect
+from garmin_grafana.project import project
+from garmin_grafana.storage import Rows, Store, connect
 
 
 def dashboard_queries() -> list[tuple[str, str]]:
@@ -25,13 +26,17 @@ def dashboard_queries() -> list[tuple[str, str]]:
     return queries
 
 
-def expand(query: str) -> str:
+def expand(query: str, activity: str = "1") -> str:
+    query = re.sub(
+        r"\$__timeFilter\(([^)]*)\)",
+        r"\1 BETWEEN '2026-10-01'::timestamptz AND '2026-10-09'::timestamptz",
+        query,
+    )
     for key, value in {
         "${TimeZone:sqlstring}": "'America/Chicago'",
-        "${Activity:sqlstring}": "'test-run'",
+        "${Activity:sqlstring}": f"'{activity}'",
         "${Distance:sqlstring}": "'1 km'",
         "$__interval_ms": "300000",
-        "$__timeFilter(time)": "time BETWEEN '2026-10-01'::timestamptz AND '2026-10-09'::timestamptz",
         "$__timeFrom()": "'2026-10-01T12:00:00Z'",
         "$__timeTo()": "'2026-10-09T00:00:00Z'",
     }.items():
@@ -51,67 +56,83 @@ class DatabaseTests(unittest.TestCase):
         self.enterContext(self.connection.transaction(force_rollback=True))
         self.at = datetime(2026, 10, 5, 12, tzinfo=UTC)
 
-    def test_archive_and_replacement_preserve_corrections(self) -> None:
-        self.store.archive("test", "key", {"extra": [1, 2]})
-        self.store.archive("test", "key", {"extra": [1, 2]})
-        self.store.archive("test", "key", {"extra": [1, 3]})
-        count = self.connection.execute(
-            "SELECT count(*) AS count FROM garmin.responses WHERE endpoint = 'test'"
-        ).fetchone()
-        assert count is not None
-        self.assertEqual(count["count"], 2)
-        self.store.archive_file("test", b"original")
-        self.assertEqual(self.store.latest_file("test"), b"original")
-        self.store.replace(
-            "test",
-            [Sample("Test", self.at, {"a": 1}), Sample("Test", self.at, {"b": 2})],
-        )
-        self.assertEqual(self.store.samples("Test")[0].fields, {"a": 1, "b": 2})
-        self.store.replace(
-            "test", [Sample("Test", self.at + timedelta(seconds=1), {"a": 3})]
-        )
-        self.assertEqual(len(self.store.samples("Test")), 1)
-        with self.assertRaises(ValueError):
-            self.store.replace("test", [Sample("Test", self.at, {"a": float("nan")})])
-        self.assertEqual(self.store.samples("Test")[0].fields, {"a": 3})
+    def count(self, query: LiteralString) -> int:
+        row = self.connection.execute(query).fetchone()
+        assert row is not None
+        return row["count"]
 
-    def test_derived_records_recompute_and_dashboard_queries_execute(self) -> None:
-        for activity_id, offset, seconds in (
-            ("test-run", 0, 400),
-            ("test-other", 1, 300),
-        ):
+    def test_archive_and_replacement_preserve_corrections(self) -> None:
+        for extra in ([1, 2], [1, 2], [1, 3]):
+            self.store.archive("test", "key", {"extra": extra})
+        self.assertEqual(
+            self.count("SELECT count(*) FROM garmin.responses WHERE endpoint = 'test'"),
+            2,
+        )
+        day = {
+            "args": ["2000-01-01"],
+            "data": {
+                "heartRateValueDescriptors": [
+                    {"key": "timestamp", "index": 0},
+                    {"key": "heartrate", "index": 1},
+                ],
+                "heartRateValues": [[946684800000, 60], [946684920000, 61]],
+                "unknownField": 1,
+            },
+        }
+        self.store.replace(project("get_heart_rates", "key", day))
+        day["data"]["heartRateValues"] = [[946684800000, 62]]
+        self.store.replace(project("get_heart_rates", "key", day))
+        row = self.connection.execute(
+            'SELECT "timestamp", heartrate FROM garmin."heartRateValues" '
+            "WHERE \"calendarDate\" = '2000-01-01'"
+        ).fetchall()
+        self.assertEqual(
+            row, [{"timestamp": datetime(2000, 1, 1, tzinfo=UTC), "heartrate": 62}]
+        )
+
+    def test_best_efforts_recompute_and_dashboard_queries_execute(self) -> None:
+        for activity_id, offset, seconds in ((1, 0, 400), (2, 1, 300)):
             at = self.at + timedelta(days=offset)
-            fields: dict[str, Any] = {
+            activity = {
+                "activityId": activity_id,
                 "activityName": "Test run",
-                "activityType": "running",
+                "activityType": {"typeId": 1, "typeKey": "running"},
+                "startTimeGMT": at.isoformat(),
+                "startTimeLocal": at.replace(tzinfo=None).isoformat(),
                 "distance": 1000,
             }
             self.store.replace(
-                activity_id,
-                [
-                    Sample("ActivitySummary", at, fields, activity_id),
-                    Sample("ActivityGPS", at, {"Distance": 0}, activity_id),
-                    Sample(
-                        "ActivityGPS",
-                        at + timedelta(seconds=seconds),
-                        {"Distance": 1000},
-                        activity_id,
-                    ),
-                ],
+                project("get_activities_by_date", "key", {"data": [activity]})
             )
-        derive(self.store, [Distance("1 km", 1000)], ZoneInfo("America/Chicago"))
-        derive(self.store, [Distance("1 km", 1000)], ZoneInfo("America/Chicago"))
+            self.store.replace(
+                [
+                    Rows(
+                        "fit_record",
+                        {"activityId": activity_id},
+                        [
+                            {"timestamp": at, "distance": 0},
+                            {
+                                "timestamp": at + timedelta(seconds=seconds),
+                                "distance": 1000,
+                            },
+                        ],
+                    )
+                ]
+            )
+        derive(self.store, [Distance("1 km", 1000)])
+        derive(self.store, [Distance("1 km", 1000)])
         rows = self.connection.execute(
-            'SELECT "Best", "Record" FROM garmin."BestEffort" WHERE "ActivityID" LIKE \'test-%\' ORDER BY time'
+            "SELECT seconds FROM garmin.best_effort "
+            "WHERE activity_id IN (1, 2) ORDER BY activity_id"
         ).fetchall()
-        self.assertEqual(
-            [(row["Best"], row["Record"]) for row in rows], [(400, 1), (300, 1)]
-        )
+        self.assertEqual([row["seconds"] for row in rows], [400, 300])
         for name, query in dashboard_queries():
             with self.subTest(query=name):
                 self.connection.execute(cast(LiteralString, expand(query))).fetchall()
-        derive(self.store, [Distance("2 km", 2000)], ZoneInfo("America/Chicago"))
-        rows = self.connection.execute(
-            'SELECT * FROM garmin."BestEffort" WHERE "ActivityID" LIKE \'test-%\''
-        ).fetchall()
-        self.assertEqual(rows, [])
+        derive(self.store, [Distance("2 km", 2000)])
+        self.assertEqual(
+            self.count(
+                "SELECT count(*) FROM garmin.best_effort WHERE activity_id IN (1, 2)"
+            ),
+            0,
+        )

@@ -21,195 +21,746 @@ CREATE TABLE IF NOT EXISTS garmin.state (
     key text PRIMARY KEY,
     value jsonb NOT NULL
 );
-CREATE TABLE IF NOT EXISTS garmin.samples (
-    source text NOT NULL,
-    measurement text NOT NULL,
+CREATE TABLE IF NOT EXISTS garmin.activity_weather (
+    activity_id bigint NOT NULL,
     time timestamptz NOT NULL,
-    entity text NOT NULL DEFAULT '',
-    fields jsonb NOT NULL,
-    PRIMARY KEY (source, measurement, time, entity)
+    temperature_2m double precision,
+    apparent_temperature double precision,
+    relative_humidity_2m integer,
+    wind_speed_10m double precision,
+    wind_direction_10m integer,
+    PRIMARY KEY (activity_id, time)
 );
-SELECT create_hypertable('garmin.samples', by_range('time', INTERVAL '30 days'), if_not_exists => true);
-CREATE INDEX IF NOT EXISTS samples_measurement_time ON garmin.samples (measurement, time DESC);
-CREATE INDEX IF NOT EXISTS samples_measurement_entity_time ON garmin.samples (measurement, entity, time);
+CREATE TABLE IF NOT EXISTS garmin.best_effort (
+    activity_id bigint NOT NULL,
+    distance text NOT NULL,
+    meters double precision NOT NULL,
+    covered_meters double precision NOT NULL,
+    seconds double precision NOT NULL,
+    duration text NOT NULL,
+    pace text NOT NULL,
+    PRIMARY KEY (activity_id, distance)
+);
 
-CREATE OR REPLACE VIEW garmin."DeviceSync" AS
-SELECT time FROM garmin.samples WHERE measurement = 'DeviceSync';
-
-CREATE OR REPLACE VIEW garmin."ActivityGPS" AS
-SELECT time,
-       entity AS "ActivityID",
-       (fields->>'Altitude')::double precision AS "Altitude",
-       (fields->>'Cadence')::double precision AS "Cadence",
-       (fields->>'DurationSeconds')::double precision AS "DurationSeconds",
-       (fields->>'Fractional_Cadence')::double precision AS "Fractional_Cadence",
-       (fields->>'HeartRate')::double precision AS "HeartRate",
-       (fields->>'Latitude')::double precision AS "Latitude",
-       (fields->>'Longitude')::double precision AS "Longitude",
-       (fields->>'Power')::double precision AS "Power",
-       (fields->>'Speed')::double precision AS "Speed",
-       (fields->>'Stance_Time')::double precision AS "Stance_Time",
-       (fields->>'Vertical_Oscillation')::double precision AS "Vertical_Oscillation",
-       (fields->>'Step_Length')::double precision AS "Step_Length"
-FROM garmin.samples WHERE measurement = 'ActivityGPS';
-
-CREATE OR REPLACE VIEW garmin."ActivityIndex" AS
-SELECT time,
-       entity AS "ActivityID",
-       fields->>'Label' AS "Label"
-FROM garmin.samples WHERE measurement = 'ActivityIndex';
-
-CREATE OR REPLACE VIEW garmin."ActivityLap" AS
-SELECT time,
-       entity AS "ActivityID",
-       (fields->>'Ascent')::double precision AS "Ascent",
-       (fields->>'Avg_HR')::double precision AS "Avg_HR",
-       (fields->>'Descent')::double precision AS "Descent",
-       (fields->>'Distance')::double precision AS "Distance",
-       (fields->>'Elapsed_Time')::double precision AS "Elapsed_Time",
-       (fields->>'Index')::double precision AS "Index",
-       (fields->>'Max_HR')::double precision AS "Max_HR"
-FROM garmin.samples WHERE measurement = 'ActivityLap';
-
-CREATE OR REPLACE VIEW garmin."ActivitySummary" AS
-SELECT time,
-       entity AS "ActivityID",
-       fields->>'activityType' AS "activityType",
-       (fields->>'aerobicTrainingEffect')::double precision AS "aerobicTrainingEffect",
-       (fields->>'averageHR')::double precision AS "averageHR",
-       (fields->>'averageSpeed')::double precision AS "averageSpeed",
-       (fields->>'calories')::double precision AS "calories",
-       (fields->>'distance')::double precision AS "distance",
-       (fields->>'elapsedDuration')::double precision AS "elapsedDuration",
-       (fields->>'elevationGain')::double precision AS "elevationGain",
-       (fields->>'hrZoneLowBoundary_1')::double precision AS "hrZoneLowBoundary_1",
-       (fields->>'hrZoneLowBoundary_2')::double precision AS "hrZoneLowBoundary_2",
-       (fields->>'hrZoneLowBoundary_3')::double precision AS "hrZoneLowBoundary_3",
-       (fields->>'hrZoneLowBoundary_4')::double precision AS "hrZoneLowBoundary_4",
-       (fields->>'hrZoneLowBoundary_5')::double precision AS "hrZoneLowBoundary_5",
-       (fields->>'maxHR')::double precision AS "maxHR"
-FROM garmin.samples WHERE measurement = 'ActivitySummary';
-
-CREATE OR REPLACE VIEW garmin."ActivityWeather" AS
-SELECT time,
-       entity AS "ActivityID",
-       (fields->>'FeelsLike')::double precision AS "FeelsLike",
-       (fields->>'Humidity')::double precision AS "Humidity",
-       (fields->>'Temperature')::double precision AS "Temperature",
-       fields->>'Wind' AS "Wind"
-FROM garmin.samples WHERE measurement = 'ActivityWeather';
-
-CREATE OR REPLACE VIEW garmin.efforts AS
-SELECT time,
-       split_part(entity, ':', 1) AS "ActivityID",
-       fields->>'ActivityName' AS "ActivityName",
-       (fields->>'CoveredMeters')::double precision AS "CoveredMeters",
-       fields->>'Date' AS "Date",
-       fields->>'Distance' AS "Distance",
-       fields->>'Duration' AS "Duration",
-       (fields->>'Meters')::double precision AS "Meters",
-       fields->>'Pace' AS "Pace",
-       (fields->>'Seconds')::double precision AS "Seconds"
-FROM garmin.samples WHERE measurement = 'BestEffort';
-
-CREATE OR REPLACE VIEW garmin."BodyBatteryIntraday" AS
-SELECT time,
-       (fields->>'BodyBatteryLevel')::double precision AS "BodyBatteryLevel"
-FROM garmin.samples WHERE measurement = 'BodyBatteryIntraday';
-
-CREATE OR REPLACE VIEW garmin."BodyComposition" AS
-SELECT time,
-       (fields->>'weight')::double precision AS "weight"
-FROM garmin.samples WHERE measurement = 'BodyComposition';
-
-CREATE OR REPLACE VIEW garmin."BreathingRateIntraday" AS
-SELECT time,
-       (fields->>'BreathingRate')::double precision AS "BreathingRate"
-FROM garmin.samples WHERE measurement = 'BreathingRateIntraday';
-
-CREATE OR REPLACE VIEW garmin."DailyStats" AS
-SELECT time,
-       (fields->>'activeKilocalories')::double precision AS "activeKilocalories",
-       (fields->>'activeSeconds')::double precision AS "activeSeconds",
-       (fields->>'averageSpo2')::double precision AS "averageSpo2",
-       (fields->>'bmrKilocalories')::double precision AS "bmrKilocalories",
-       (fields->>'bodyBatteryChargedValue')::double precision AS "bodyBatteryChargedValue",
-       (fields->>'bodyBatteryDrainedValue')::double precision AS "bodyBatteryDrainedValue",
-       (fields->>'highStressDuration')::double precision AS "highStressDuration",
-       (fields->>'highlyActiveSeconds')::double precision AS "highlyActiveSeconds",
-       (fields->>'lowStressDuration')::double precision AS "lowStressDuration",
-       (fields->>'mediumStressDuration')::double precision AS "mediumStressDuration",
-       (fields->>'moderateIntensityMinutes')::double precision AS "moderateIntensityMinutes",
-       (fields->>'restStressDuration')::double precision AS "restStressDuration",
-       (fields->>'restingHeartRate')::double precision AS "restingHeartRate",
-       (fields->>'sedentarySeconds')::double precision AS "sedentarySeconds",
-       (fields->>'sleepingSeconds')::double precision AS "sleepingSeconds",
-       (fields->>'totalDistanceMeters')::double precision AS "totalDistanceMeters",
-       (fields->>'totalSteps')::double precision AS "totalSteps",
-       (fields->>'uncategorizedStressDuration')::double precision AS "uncategorizedStressDuration",
-       (fields->>'vigorousIntensityMinutes')::double precision AS "vigorousIntensityMinutes"
-FROM garmin.samples WHERE measurement = 'DailyStats';
-
-CREATE OR REPLACE VIEW garmin."HRV_Intraday" AS
-SELECT time,
-       (fields->>'hrvValue')::double precision AS "hrvValue"
-FROM garmin.samples WHERE measurement = 'HRV_Intraday';
-
-CREATE OR REPLACE VIEW garmin."HeartRateIntraday" AS
-SELECT time,
-       (fields->>'HeartRate')::double precision AS "HeartRate"
-FROM garmin.samples WHERE measurement = 'HeartRateIntraday';
-
-CREATE OR REPLACE VIEW garmin."RacePredictions" AS
-SELECT time,
-       (fields->>'time10K')::double precision AS "time10K",
-       (fields->>'time5K')::double precision AS "time5K",
-       (fields->>'timeHalfMarathon')::double precision AS "timeHalfMarathon",
-       (fields->>'timeMarathon')::double precision AS "timeMarathon"
-FROM garmin.samples WHERE measurement = 'RacePredictions';
-
-CREATE OR REPLACE VIEW garmin."SleepStage" AS
-SELECT time,
-       (fields->>'Clock')::double precision AS "Clock",
-       (fields->>'Day')::double precision AS "Day",
-       (fields->>'Stage')::double precision AS "Stage"
-FROM garmin.samples WHERE measurement = 'SleepStage';
-
-CREATE OR REPLACE VIEW garmin."SleepSummary" AS
-SELECT time,
-       (fields->>'averageSpO2Value')::double precision AS "averageSpO2Value",
-       (fields->>'avgSleepStress')::double precision AS "avgSleepStress",
-       (fields->>'awakeCount')::double precision AS "awakeCount",
-       (fields->>'awakeSleepSeconds')::double precision AS "awakeSleepSeconds",
-       (fields->>'deepSleepSeconds')::double precision AS "deepSleepSeconds",
-       (fields->>'lightSleepSeconds')::double precision AS "lightSleepSeconds",
-       (fields->>'remSleepSeconds')::double precision AS "remSleepSeconds",
-       (fields->>'restlessMomentsCount')::double precision AS "restlessMomentsCount",
-       (fields->>'sleepScore')::double precision AS "sleepScore",
-       (fields->>'sleepTimeSeconds')::double precision AS "sleepTimeSeconds"
-FROM garmin.samples WHERE measurement = 'SleepSummary';
-
-CREATE OR REPLACE VIEW garmin."StepRecord" AS
-SELECT time,
-       (fields->>'Order')::double precision AS "Order",
-       (fields->>'Steps')::double precision AS "Steps",
-       fields->>'Title' AS "Title"
-FROM garmin.samples WHERE measurement = 'StepRecord';
-
-CREATE OR REPLACE VIEW garmin."StressIntraday" AS
-SELECT time,
-       (fields->>'stressLevel')::double precision AS "stressLevel"
-FROM garmin.samples WHERE measurement = 'StressIntraday';
-
-CREATE OR REPLACE VIEW garmin."VO2_Max" AS
-SELECT time,
-       (fields->>'VO2_max_value')::double precision AS "VO2_max_value"
-FROM garmin.samples WHERE measurement = 'VO2_Max';
-
-CREATE OR REPLACE VIEW garmin."BestEffort" AS
-SELECT *,
-       min("Seconds") OVER (PARTITION BY "Distance" ORDER BY time, "ActivityID" ROWS UNBOUNDED PRECEDING) AS "Best",
-       CASE WHEN "Seconds" < coalesce(min("Seconds") OVER (
-           PARTITION BY "Distance" ORDER BY time, "ActivityID" ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
-       ), 'Infinity'::double precision) THEN 1 ELSE 0 END AS "Record"
-FROM garmin.efforts;
+CREATE TABLE IF NOT EXISTS garmin.activities (
+    "activityId" bigint NOT NULL,
+    "activityName" text,
+    "activityTrainingLoad" double precision,
+    "activityType" bigint,
+    "activityUUID" text,
+    "aerobicTrainingEffect" double precision,
+    "aerobicTrainingEffectMessage" text,
+    "anaerobicTrainingEffect" double precision,
+    "anaerobicTrainingEffectMessage" text,
+    "atpActivity" boolean,
+    "autoCalcCalories" boolean,
+    "averageHR" double precision,
+    "averageRunningCadenceInStepsPerMinute" double precision,
+    "averageSpeed" double precision,
+    "avgElevation" double precision,
+    "avgGradeAdjustedSpeed" double precision,
+    "avgGroundContactTime" double precision,
+    "avgPower" double precision,
+    "avgStrideLength" double precision,
+    "avgVerticalOscillation" double precision,
+    "avgVerticalRatio" double precision,
+    "beginTimestamp" timestamptz,
+    "bmrCalories" double precision,
+    calories double precision,
+    "courseId" bigint,
+    "decoDive" boolean,
+    "deviceId" bigint,
+    "differenceBodyBattery" integer,
+    distance double precision,
+    duration double precision,
+    "elapsedDuration" double precision,
+    "elevationCorrected" boolean,
+    "elevationGain" double precision,
+    "elevationLoss" double precision,
+    "endLatitude" double precision,
+    "endLongitude" double precision,
+    "endTimeGMT" timestamptz,
+    "eventType" bigint,
+    "fastestSplit_1000" double precision,
+    "fastestSplit_1609" double precision,
+    "fastestSplit_5000" double precision,
+    favorite boolean,
+    "hasHeatMap" boolean,
+    "hasImages" boolean,
+    "hasIntensityIntervals" boolean,
+    "hasPolyline" boolean,
+    "hasSplits" boolean,
+    "hasVideo" boolean,
+    "hrTimeInZone_1" double precision,
+    "hrTimeInZone_2" double precision,
+    "hrTimeInZone_3" double precision,
+    "hrTimeInZone_4" double precision,
+    "hrTimeInZone_5" double precision,
+    "isAtpActivity" boolean,
+    "isAutoCalcCalories" boolean,
+    "isDecoDive" boolean,
+    "isElevationCorrected" boolean,
+    "isFavorite" boolean,
+    "isManualActivity" boolean,
+    "isPR" boolean,
+    "isParent" boolean,
+    "isPurposeful" boolean,
+    "lapCount" integer,
+    "locationName" text,
+    "manualActivity" boolean,
+    manufacturer text,
+    "maxDoubleCadence" double precision,
+    "maxElevation" double precision,
+    "maxHR" double precision,
+    "maxPower" double precision,
+    "maxRunningCadenceInStepsPerMinute" double precision,
+    "maxSpeed" double precision,
+    "maxTemperature" double precision,
+    "maxVerticalSpeed" double precision,
+    "minActivityLapDuration" double precision,
+    "minElevation" double precision,
+    "minTemperature" double precision,
+    "moderateIntensityMinutes" integer,
+    "movingDuration" double precision,
+    "normPower" double precision,
+    parent boolean,
+    "powerTimeInZone_1" double precision,
+    "powerTimeInZone_2" double precision,
+    "powerTimeInZone_3" double precision,
+    "powerTimeInZone_4" double precision,
+    "powerTimeInZone_5" double precision,
+    pr boolean,
+    purposeful boolean,
+    "qualifyingDive" boolean,
+    "sportTypeId" bigint,
+    "startLatitude" double precision,
+    "startLongitude" double precision,
+    "startTimeGMT" timestamptz,
+    "startTimeLocal" timestamp without time zone,
+    steps integer,
+    "timeZoneId" bigint,
+    "trainingEffectLabel" text,
+    "vO2MaxValue" double precision,
+    "vigorousIntensityMinutes" integer,
+    "waterEstimated" double precision,
+    "workoutId" bigint,
+    PRIMARY KEY ("activityId")
+);
+CREATE TABLE IF NOT EXISTS garmin."activityType" (
+    "isHidden" boolean,
+    "parentTypeId" bigint,
+    restricted boolean,
+    trimmable boolean,
+    "typeId" bigint NOT NULL,
+    "typeKey" text,
+    PRIMARY KEY ("typeId")
+);
+CREATE TABLE IF NOT EXISTS garmin."allWeightMetrics" (
+    bmi double precision,
+    "bodyFat" double precision,
+    "bodyWater" double precision,
+    "boneMass" integer,
+    "calendarDate" date,
+    "date" timestamp without time zone,
+    "muscleMass" integer,
+    "samplePk" bigint NOT NULL,
+    "sourceType" text,
+    "timestampGMT" timestamptz,
+    weight double precision,
+    "weightDelta" double precision,
+    PRIMARY KEY ("samplePk")
+);
+CREATE TABLE IF NOT EXISTS garmin."bodyBatteryActivityEventList" (
+    "activityId" bigint,
+    "activityName" text,
+    "activityType" text,
+    "bodyBatteryImpact" integer,
+    "calendarDate" date,
+    "deviceId" bigint,
+    "durationInMilliseconds" integer,
+    "eventStartTimeGmt" timestamptz,
+    "eventType" text,
+    "eventUpdateTimeGmt" timestamptz,
+    "feedbackType" text,
+    "shortFeedback" text,
+    "timezoneOffset" integer
+);
+CREATE TABLE IF NOT EXISTS garmin."bodyBatteryValuesArray" (
+    "bodyBatteryLevel" integer,
+    "bodyBatteryStatus" text,
+    "bodyBatteryVersion" double precision,
+    "calendarDate" date NOT NULL,
+    "timestamp" timestamptz NOT NULL,
+    PRIMARY KEY ("calendarDate", "timestamp")
+);
+SELECT create_hypertable('garmin."bodyBatteryValuesArray"', by_range('timestamp', INTERVAL '30 days'), if_not_exists => true);
+CREATE TABLE IF NOT EXISTS garmin."breathingDisruptionData" (
+    "calendarDate" date,
+    "endGMT" timestamptz,
+    "startGMT" timestamptz,
+    "value" integer
+);
+CREATE TABLE IF NOT EXISTS garmin.components (
+    "calendarDate" date NOT NULL,
+    "improvementValue" double precision,
+    "key" text NOT NULL,
+    "lastMeasurementDate" date,
+    "numOfWeeksForIm" integer,
+    "potentialAge" double precision,
+    priority integer,
+    stale boolean,
+    "targetValue" double precision,
+    "value" double precision,
+    PRIMARY KEY ("calendarDate", "key")
+);
+CREATE TABLE IF NOT EXISTS garmin."dailyHeartRate" (
+    "calendarDate" date NOT NULL,
+    "endTimestampGMT" timestamptz,
+    "endTimestampLocal" timestamp without time zone,
+    "lastSevenDaysAvgRestingHeartRate" integer,
+    "maxHeartRate" integer,
+    "minHeartRate" integer,
+    "restingHeartRate" integer,
+    "startTimestampGMT" timestamptz,
+    "startTimestampLocal" timestamp without time zone,
+    "userProfilePK" bigint,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin."dailyNapDTOS" (
+    "calendarDate" date,
+    "deviceId" bigint,
+    "napEndTimeOffset" integer,
+    "napEndTimestampGMT" timestamptz,
+    "napFeedback" text,
+    "napSource" integer,
+    "napStartTimeOffset" integer,
+    "napStartTimestampGMT" timestamptz,
+    "napTimeSec" integer,
+    "userProfilePK" bigint
+);
+CREATE TABLE IF NOT EXISTS garmin."dailySleepDTO" (
+    "ageGroup" text,
+    "averageRespirationValue" double precision,
+    "averageSpO2HRSleep" double precision,
+    "averageSpO2Value" double precision,
+    "avgHeartRate" double precision,
+    "avgSleepStress" double precision,
+    "awakeCount" integer,
+    "awakeSleepSeconds" integer,
+    "breathingDisruptionSeverity" text,
+    "calendarDate" date NOT NULL,
+    "deepSleepSeconds" integer,
+    "deviceRemCapable" boolean,
+    "highestRespirationValue" double precision,
+    "highestSpO2Value" integer,
+    id bigint,
+    "lightSleepSeconds" integer,
+    "lowestRespirationValue" double precision,
+    "lowestSpO2Value" integer,
+    "napTimeSeconds" integer,
+    "remSleepSeconds" integer,
+    retro boolean,
+    "sleepEndTimestampGMT" timestamptz,
+    "sleepEndTimestampLocal" timestamp without time zone,
+    "sleepFromDevice" boolean,
+    "sleepScoreFeedback" text,
+    "sleepScoreInsight" text,
+    "sleepScorePersonalizedInsight" text,
+    "sleepStartTimestampGMT" timestamptz,
+    "sleepStartTimestampLocal" timestamp without time zone,
+    "sleepTimeSeconds" integer,
+    "sleepVersion" integer,
+    "sleepWindowConfirmationType" text,
+    "sleepWindowConfirmed" boolean,
+    "unmeasurableSleepSeconds" integer,
+    "userProfilePK" bigint,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin."dailySleepData" (
+    "avgOvernightHrv" double precision,
+    "bodyBatteryChange" integer,
+    "calendarDate" date NOT NULL,
+    "hrvStatus" text,
+    "remSleepData" boolean,
+    "respirationVersion" integer,
+    "restingHeartRate" integer,
+    "restlessMomentsCount" integer,
+    "skinTempDataExists" boolean,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin."dailyStress" (
+    "avgStressLevel" integer,
+    "calendarDate" date NOT NULL,
+    "endTimestampGMT" timestamptz,
+    "endTimestampLocal" timestamp without time zone,
+    "maxStressLevel" integer,
+    "startTimestampGMT" timestamptz,
+    "startTimestampLocal" timestamp without time zone,
+    "stressChartValueOffset" integer,
+    "stressChartYAxisOrigin" integer,
+    "userProfilePK" bigint,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin."dailySummaryChart" (
+    "activityLevelConstant" boolean,
+    "calendarDate" date NOT NULL,
+    "endGMT" timestamptz,
+    "primaryActivityLevel" text,
+    pushes integer,
+    "startGMT" timestamptz NOT NULL,
+    steps integer,
+    PRIMARY KEY ("calendarDate", "startGMT")
+);
+CREATE TABLE IF NOT EXISTS garmin."dailyWeightSummaries" (
+    "maxWeight" double precision,
+    "minWeight" double precision,
+    "numOfWeightEntries" integer,
+    "summaryDate" date NOT NULL,
+    PRIMARY KEY ("summaryDate")
+);
+CREATE TABLE IF NOT EXISTS garmin."eventType" (
+    "sortOrder" integer,
+    "typeId" bigint NOT NULL,
+    "typeKey" text,
+    PRIMARY KEY ("typeId")
+);
+CREATE TABLE IF NOT EXISTS garmin.fitnessage (
+    "achievableFitnessAge" double precision,
+    "calendarDate" date NOT NULL,
+    "chronologicalAge" integer,
+    "fitnessAge" double precision,
+    "lastUpdated" timestamptz,
+    "previousFitnessAge" double precision,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin."heartRateValues" (
+    "calendarDate" date NOT NULL,
+    heartrate integer,
+    "timestamp" timestamptz NOT NULL,
+    PRIMARY KEY ("calendarDate", "timestamp")
+);
+SELECT create_hypertable('garmin."heartRateValues"', by_range('timestamp', INTERVAL '30 days'), if_not_exists => true);
+CREATE TABLE IF NOT EXISTS garmin."hrTimeInZones" (
+    "activityId" bigint NOT NULL,
+    "secsInZone" double precision,
+    "zoneLowBoundary" integer,
+    "zoneNumber" integer NOT NULL,
+    PRIMARY KEY ("activityId", "zoneNumber")
+);
+CREATE TABLE IF NOT EXISTS garmin."hrvReadings" (
+    "calendarDate" date NOT NULL,
+    "hrvValue" integer,
+    "readingTimeGMT" timestamptz NOT NULL,
+    "readingTimeLocal" timestamp without time zone,
+    PRIMARY KEY ("calendarDate", "readingTimeGMT")
+);
+CREATE TABLE IF NOT EXISTS garmin."hrvSummary" (
+    "balancedLow" integer,
+    "balancedUpper" integer,
+    "calendarDate" date NOT NULL,
+    "createTimeStamp" timestamptz,
+    "feedbackPhrase" text,
+    "lastNight5MinHigh" integer,
+    "lastNightAvg" integer,
+    "lowUpper" integer,
+    "markerValue" double precision,
+    status text,
+    "weeklyAvg" integer,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin.maxmet (
+    "calendarDate" date NOT NULL,
+    "key" text NOT NULL,
+    "maxMetCategory" integer,
+    "vo2MaxPreciseValue" double precision,
+    "vo2MaxValue" double precision,
+    PRIMARY KEY ("calendarDate", "key")
+);
+CREATE TABLE IF NOT EXISTS garmin.mylastused (
+    "applicationNumber" integer,
+    "imageUrl" text,
+    "lastUsedDeviceApplicationKey" text,
+    "lastUsedDeviceName" text,
+    "lastUsedDeviceUploadTime" timestamptz,
+    released boolean,
+    "userDeviceId" bigint NOT NULL,
+    "userProfileNumber" integer,
+    PRIMARY KEY ("userDeviceId")
+);
+CREATE TABLE IF NOT EXISTS garmin.racepredictions (
+    "calendarDate" date NOT NULL,
+    "fromCalendarDate" date,
+    "time10K" integer,
+    "time5K" integer,
+    "timeHalfMarathon" integer,
+    "timeMarathon" integer,
+    "toCalendarDate" date,
+    "userId" bigint,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin.respiration (
+    "avgSleepRespirationValue" double precision,
+    "avgTomorrowSleepRespirationValue" double precision,
+    "avgWakingRespirationValue" double precision,
+    "calendarDate" date NOT NULL,
+    "endTimestampGMT" timestamptz,
+    "endTimestampLocal" timestamp without time zone,
+    "highestRespirationValue" double precision,
+    "lowestRespirationValue" double precision,
+    "respirationVersion" integer,
+    "sleepEndTimestampGMT" timestamptz,
+    "sleepEndTimestampLocal" timestamp without time zone,
+    "sleepStartTimestampGMT" timestamptz,
+    "sleepStartTimestampLocal" timestamp without time zone,
+    "startTimestampGMT" timestamptz,
+    "startTimestampLocal" timestamp without time zone,
+    "tomorrowSleepEndTimestampGMT" timestamptz,
+    "tomorrowSleepEndTimestampLocal" timestamp without time zone,
+    "tomorrowSleepStartTimestampGMT" timestamptz,
+    "tomorrowSleepStartTimestampLocal" timestamp without time zone,
+    "userProfilePK" bigint,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin."respirationAveragesValuesArray" (
+    "averageRespirationValue" double precision,
+    "calendarDate" date NOT NULL,
+    "highRespirationValue" double precision,
+    "lowRespirationValue" double precision,
+    "timestamp" timestamptz NOT NULL,
+    PRIMARY KEY ("calendarDate", "timestamp")
+);
+CREATE TABLE IF NOT EXISTS garmin."respirationValuesArray" (
+    "calendarDate" date NOT NULL,
+    respiration double precision,
+    "timestamp" timestamptz NOT NULL,
+    PRIMARY KEY ("calendarDate", "timestamp")
+);
+SELECT create_hypertable('garmin."respirationValuesArray"', by_range('timestamp', INTERVAL '30 days'), if_not_exists => true);
+CREATE TABLE IF NOT EXISTS garmin."sleepLevels" (
+    "activityLevel" double precision,
+    "calendarDate" date NOT NULL,
+    "endGMT" timestamptz,
+    "startGMT" timestamptz NOT NULL,
+    PRIMARY KEY ("calendarDate", "startGMT")
+);
+CREATE TABLE IF NOT EXISTS garmin."sleepMovement" (
+    "activityLevel" double precision,
+    "calendarDate" date NOT NULL,
+    "endGMT" timestamptz,
+    "startGMT" timestamptz NOT NULL,
+    PRIMARY KEY ("calendarDate", "startGMT")
+);
+SELECT create_hypertable('garmin."sleepMovement"', by_range('startGMT', INTERVAL '30 days'), if_not_exists => true);
+CREATE TABLE IF NOT EXISTS garmin."sleepNeed" (
+    actual integer,
+    baseline integer,
+    "calendarDate" date NOT NULL,
+    "deviceId" bigint,
+    "displayedForTheDay" boolean,
+    feedback text,
+    "hrvAdjustment" text,
+    "napAdjustment" text,
+    "preferredActivityTracker" boolean,
+    "sleepHistoryAdjustment" text,
+    "timestampGmt" timestamptz,
+    "trainingFeedback" text,
+    "userProfilePk" bigint,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin."sleepRestlessMoments" (
+    "calendarDate" date,
+    "startGMT" timestamptz,
+    "value" integer
+);
+CREATE TABLE IF NOT EXISTS garmin."sleepScores" (
+    "calendarDate" date NOT NULL,
+    "idealEndInSeconds" double precision,
+    "idealStartInSeconds" double precision,
+    "key" text NOT NULL,
+    "optimalEnd" double precision,
+    "optimalStart" double precision,
+    "qualifierKey" text,
+    "value" integer,
+    PRIMARY KEY ("calendarDate", "key")
+);
+CREATE TABLE IF NOT EXISTS garmin."splitSummaries" (
+    "activityId" bigint,
+    "averageElevationGain" double precision,
+    "averageSpeed" double precision,
+    "avgGroundContactTime" double precision,
+    "avgStepFrequency" double precision,
+    "avgStepLength" double precision,
+    distance double precision,
+    duration double precision,
+    "elevationLoss" double precision,
+    "maxDistance" integer,
+    "maxDistanceWithPrecision" double precision,
+    "maxElevationGain" double precision,
+    "maxSpeed" double precision,
+    "noOfSplits" integer,
+    "numClimbSends" integer,
+    "numFalls" integer,
+    "splitType" text,
+    "totalAscent" double precision,
+    "verticalOscillation" double precision,
+    "verticalRatio" double precision
+);
+CREATE TABLE IF NOT EXISTS garmin."stressValuesArray" (
+    "calendarDate" date NOT NULL,
+    "stressLevel" integer,
+    "timestamp" timestamptz NOT NULL,
+    PRIMARY KEY ("calendarDate", "timestamp")
+);
+SELECT create_hypertable('garmin."stressValuesArray"', by_range('timestamp', INTERVAL '30 days'), if_not_exists => true);
+CREATE TABLE IF NOT EXISTS garmin.usersummary (
+    "activeKilocalories" double precision,
+    "activeSeconds" integer,
+    "activityStressDuration" integer,
+    "activityStressPercentage" double precision,
+    "averageMonitoringEnvironmentAltitude" double precision,
+    "averageSpo2" double precision,
+    "averageStressLevel" integer,
+    "avgWakingRespirationValue" double precision,
+    "bmrKilocalories" double precision,
+    "bodyBatteryAtWakeTime" integer,
+    "bodyBatteryChargedValue" integer,
+    "bodyBatteryDrainedValue" integer,
+    "bodyBatteryDuringSleep" integer,
+    "bodyBatteryHighestValue" integer,
+    "bodyBatteryLowestValue" integer,
+    "bodyBatteryMostRecentValue" integer,
+    "bodyBatteryVersion" double precision,
+    "calendarDate" date NOT NULL,
+    "dailyStepGoal" integer,
+    "durationInMilliseconds" integer,
+    "floorsAscended" double precision,
+    "floorsAscendedInMeters" double precision,
+    "floorsDescended" double precision,
+    "floorsDescendedInMeters" double precision,
+    "highStressDuration" integer,
+    "highStressPercentage" double precision,
+    "highestRespirationValue" double precision,
+    "highlyActiveSeconds" integer,
+    "includesActivityData" boolean,
+    "includesCalorieConsumedData" boolean,
+    "includesWellnessData" boolean,
+    "intensityMinutesGoal" integer,
+    "lastSevenDaysAvgRestingHeartRate" integer,
+    "lastSyncTimestampGMT" timestamptz,
+    "latestRespirationTimeGMT" timestamptz,
+    "latestRespirationValue" double precision,
+    "latestSpo2" integer,
+    "latestSpo2ReadingTimeGmt" timestamptz,
+    "latestSpo2ReadingTimeLocal" timestamp without time zone,
+    "lowStressDuration" integer,
+    "lowStressPercentage" double precision,
+    "lowestRespirationValue" double precision,
+    "lowestSpo2" integer,
+    "maxAvgHeartRate" integer,
+    "maxHeartRate" integer,
+    "maxStressLevel" integer,
+    "measurableAsleepDuration" integer,
+    "measurableAwakeDuration" integer,
+    "mediumStressDuration" integer,
+    "mediumStressPercentage" double precision,
+    "minAvgHeartRate" integer,
+    "minHeartRate" integer,
+    "moderateIntensityMinutes" integer,
+    "netRemainingKilocalories" double precision,
+    "privacyProtected" boolean,
+    "respirationAlgorithmVersion" integer,
+    "restStressDuration" integer,
+    "restStressPercentage" double precision,
+    "restingCaloriesFromActivity" double precision,
+    "restingHeartRate" integer,
+    "sedentarySeconds" integer,
+    "sleepingSeconds" integer,
+    "source" text,
+    "stressDuration" integer,
+    "stressPercentage" double precision,
+    "stressQualifier" text,
+    "totalDistanceMeters" integer,
+    "totalKilocalories" double precision,
+    "totalSteps" integer,
+    "totalStressDuration" integer,
+    "uncategorizedStressDuration" integer,
+    "uncategorizedStressPercentage" double precision,
+    "userDailySummaryId" bigint,
+    "userFloorsAscendedGoal" integer,
+    "userProfileId" bigint,
+    uuid text,
+    "vigorousIntensityMinutes" integer,
+    "wellnessActiveKilocalories" double precision,
+    "wellnessDistanceMeters" integer,
+    "wellnessEndTimeGmt" timestamptz,
+    "wellnessEndTimeLocal" timestamp without time zone,
+    "wellnessKilocalories" double precision,
+    "wellnessStartTimeGmt" timestamptz,
+    "wellnessStartTimeLocal" timestamp without time zone,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin."wellnessEpochRespirationAveragesList" (
+    "calendarDate" date,
+    "epochEndTimestampGmt" timestamptz,
+    "respirationAverageValue" double precision,
+    "respirationHighValue" double precision,
+    "respirationLowValue" double precision
+);
+CREATE TABLE IF NOT EXISTS garmin."wellnessEpochSPO2DataDTOList" (
+    "calendarDate" date NOT NULL,
+    "deviceId" bigint,
+    "epochDuration" integer,
+    "epochTimestamp" timestamptz NOT NULL,
+    "readingConfidence" integer,
+    "spo2Reading" integer,
+    "userProfilePK" bigint,
+    PRIMARY KEY ("calendarDate", "epochTimestamp")
+);
+SELECT create_hypertable('garmin."wellnessEpochSPO2DataDTOList"', by_range('epochTimestamp', INTERVAL '30 days'), if_not_exists => true);
+CREATE TABLE IF NOT EXISTS garmin."wellnessSpO2SleepSummaryDTO" (
+    "averageSPO2" double precision,
+    "averageSpO2HR" double precision,
+    "calendarDate" date NOT NULL,
+    "deviceId" bigint,
+    "lowestSPO2" integer,
+    "sleepMeasurementEndGMT" timestamptz,
+    "sleepMeasurementStartGMT" timestamptz,
+    "userProfilePk" bigint,
+    PRIMARY KEY ("calendarDate")
+);
+CREATE TABLE IF NOT EXISTS garmin.fit_lap (
+    "activityId" bigint NOT NULL,
+    avg_fractional_cadence double precision,
+    avg_heart_rate integer,
+    avg_power integer,
+    avg_running_cadence integer,
+    avg_stance_time double precision,
+    avg_step_length double precision,
+    avg_temperature integer,
+    avg_vertical_oscillation double precision,
+    avg_vertical_ratio double precision,
+    end_position_lat integer,
+    end_position_long integer,
+    enhanced_max_altitude double precision,
+    enhanced_min_altitude double precision,
+    event text,
+    event_type text,
+    intensity text,
+    lap_trigger text,
+    max_fractional_cadence double precision,
+    max_heart_rate integer,
+    max_power integer,
+    max_running_cadence integer,
+    max_temperature integer,
+    message_index integer,
+    min_temperature integer,
+    normalized_power integer,
+    sport text,
+    start_position_lat integer,
+    start_position_long integer,
+    start_time timestamptz,
+    sub_sport text,
+    "timestamp" timestamptz NOT NULL,
+    total_ascent integer,
+    total_calories integer,
+    total_descent integer,
+    total_distance double precision,
+    total_elapsed_time double precision,
+    total_strides integer,
+    total_timer_time double precision,
+    total_work integer,
+    wkt_step_index integer,
+    PRIMARY KEY ("activityId", "timestamp")
+);
+CREATE TABLE IF NOT EXISTS garmin.fit_length (
+    "activityId" bigint NOT NULL,
+    avg_speed double precision,
+    avg_swimming_cadence integer,
+    event text,
+    event_type text,
+    length_type text,
+    message_index integer,
+    start_time timestamptz,
+    swim_stroke text,
+    "timestamp" timestamptz NOT NULL,
+    total_elapsed_time double precision,
+    total_strokes integer,
+    total_timer_time double precision,
+    PRIMARY KEY ("activityId", "timestamp")
+);
+CREATE TABLE IF NOT EXISTS garmin.fit_record (
+    "activityId" bigint NOT NULL,
+    accumulated_power integer,
+    activity_type text,
+    cadence integer,
+    cycle_length16 double precision,
+    distance double precision,
+    enhanced_altitude double precision,
+    enhanced_speed double precision,
+    fractional_cadence double precision,
+    heart_rate integer,
+    position_lat integer,
+    position_long integer,
+    power integer,
+    stance_time double precision,
+    step_length double precision,
+    temperature integer,
+    "timestamp" timestamptz NOT NULL,
+    vertical_oscillation double precision,
+    vertical_ratio double precision,
+    altitude double precision,
+    speed double precision,
+    PRIMARY KEY ("activityId", "timestamp")
+);
+SELECT create_hypertable('garmin.fit_record', by_range('timestamp', INTERVAL '30 days'), if_not_exists => true);
+CREATE TABLE IF NOT EXISTS garmin.fit_session (
+    "activityId" bigint NOT NULL,
+    avg_fractional_cadence double precision,
+    avg_heart_rate integer,
+    avg_power integer,
+    avg_running_cadence integer,
+    avg_stance_time double precision,
+    avg_step_length double precision,
+    avg_temperature integer,
+    avg_vertical_oscillation double precision,
+    avg_vertical_ratio double precision,
+    end_position_lat integer,
+    end_position_long integer,
+    event text,
+    event_type text,
+    first_lap_index integer,
+    max_fractional_cadence double precision,
+    max_heart_rate integer,
+    max_power integer,
+    max_running_cadence integer,
+    max_temperature integer,
+    message_index integer,
+    min_temperature integer,
+    nec_lat integer,
+    nec_long integer,
+    normalized_power integer,
+    num_laps integer,
+    sport text,
+    sport_profile_name text,
+    start_position_lat integer,
+    start_position_long integer,
+    start_time timestamptz,
+    sub_sport text,
+    swc_lat integer,
+    swc_long integer,
+    "timestamp" timestamptz NOT NULL,
+    total_anaerobic_training_effect double precision,
+    total_ascent integer,
+    total_calories integer,
+    total_descent integer,
+    total_distance double precision,
+    total_elapsed_time double precision,
+    total_strides integer,
+    total_timer_time double precision,
+    total_training_effect double precision,
+    total_work integer,
+    trigger text,
+    workout_feel integer,
+    workout_rpe integer,
+    PRIMARY KEY ("activityId", "timestamp")
+);

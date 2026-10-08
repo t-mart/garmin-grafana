@@ -9,7 +9,6 @@ from datetime import date
 from pathlib import Path
 from threading import Event
 from typing import Any
-from zoneinfo import ZoneInfo
 
 import fitdecode
 import httpx2
@@ -19,11 +18,10 @@ from garminconnect import (
     GarminConnectTooManyRequestsError,
 )
 
-from .activity import fit_samples, summary_sample, tcx_samples
-from .derive import compass, parse_weather, weather_url
+from .derive import weather_url
 from .metrics import FETCHES
-from .normalize import daily_samples
-from .storage import Fields, Sample, Store, digest, timestamp
+from .project import fit, project
+from .storage import Fields, Store, digest
 
 ENDPOINTS = {
     "daily_avg": "get_stats",
@@ -103,14 +101,12 @@ class Collector:
         self,
         client: Garmin,
         store: Store,
-        zone: ZoneInfo,
         delay: float,
         force: bool = False,
         stop: Event | None = None,
     ) -> None:
         self.client = client
         self.store = store
-        self.zone = zone
         self.delay = delay
         self.force = force
         self.stop = stop or Event()
@@ -119,47 +115,37 @@ class Collector:
         if self.stop.wait(self.delay):
             raise InterruptedError("Collection stopped.")
         function: Callable[..., Any] = getattr(self.client, method)
-        payload = request(method, lambda: function(*args, **kwargs))
+        data = request(method, lambda: function(*args, **kwargs))
         key = digest([args, kwargs])
-        self.store.archive(
-            method, key, {"args": args, "kwargs": kwargs, "data": payload}
-        )
-        return payload
+        payload = {"args": args, "kwargs": kwargs, "data": data}
+        self.store.archive(method, key, payload)
+        self.store.replace(project(method, key, payload))
+        return data
 
     def day(self, day: date, selection: set[str]) -> bool:
         complete = True
+        value = day.isoformat()
         for kind in sorted(selection):
             if self.stop.is_set():
                 return False
             try:
                 if kind == "activity":
-                    activities = self.fetch(
-                        "get_activities_by_date", day.isoformat(), day.isoformat()
-                    )
-                    for activity in activities:
+                    for activity in (
+                        self.fetch("get_activities_by_date", value, value) or []
+                    ):
                         self.activity(activity)
+                elif kind == "race_prediction":
+                    self.fetch(
+                        ENDPOINTS[kind], startdate=value, enddate=value, _type="daily"
+                    )
+                elif kind == "lactate_threshold":
+                    self.fetch(
+                        ENDPOINTS[kind], latest=False, start_date=value, end_date=value
+                    )
+                elif kind == "body_composition":
+                    self.fetch(ENDPOINTS[kind], value, value)
                 else:
-                    value = day.isoformat()
-                    if kind == "race_prediction":
-                        payload = self.fetch(
-                            ENDPOINTS[kind],
-                            startdate=value,
-                            enddate=value,
-                            _type="daily",
-                        )
-                    elif kind == "lactate_threshold":
-                        payload = self.fetch(
-                            ENDPOINTS[kind],
-                            latest=False,
-                            start_date=value,
-                            end_date=value,
-                        )
-                    elif kind == "body_composition":
-                        payload = self.fetch(ENDPOINTS[kind], value, value)
-                    else:
-                        payload = self.fetch(ENDPOINTS[kind], value)
-                    samples = daily_samples(kind, payload, day, self.zone)
-                    self.store.replace(f"{day}:{kind}", samples)
+                    self.fetch(ENDPOINTS[kind], value)
                 LOG.info("Stored %s for %s", kind, day)
             except GarminConnectAuthenticationError, GarminConnectTooManyRequestsError:
                 raise
@@ -184,40 +170,34 @@ class Collector:
             and stored.get("summary") == marker
         ):
             return
-        zones = self.fetch("get_activity_hr_in_timezones", activity_id) or []
-        summary = summary_sample(activity, zones)
+        self.fetch("get_activity_hr_in_timezones", activity_id)
         self.fetch("get_activity_details", activity_id)
         self.fetch("get_activity_splits", activity_id)
-        if "strength" in summary.fields["activityType"]:
+        if "strength" in (activity.get("activityType") or {}).get("typeKey", ""):
             self.fetch("get_activity_exercise_sets", activity_id)
-        content = self.download(activity_id, Garmin.ActivityDownloadFormat.ORIGINAL)
-        samples = []
+        content = self.download(activity_id)
+        projection = []
         if content:
             self.store.archive_file(activity_id, content)
             try:
-                samples = fit_samples(content, activity_id, summary.time)
+                projection = fit(activity_id, content)
             except fitdecode.FitError, ValueError:
-                LOG.warning("FIT decode failed for activity %s; try TCX", activity_id)
-        if not samples:
-            content = self.download(activity_id, Garmin.ActivityDownloadFormat.TCX)
-            if content:
-                self.store.archive_file(f"{activity_id}.tcx", content)
-                samples = tcx_samples(content, activity_id, summary.time)
+                LOG.warning("FIT decode failed for activity %s", activity_id)
         with self.store.connection.transaction():
-            self.store.replace(key, [summary, *samples])
+            self.store.replace(projection)
             self.store.set_state(
                 key, {"summary": marker, "file": hashlib.sha256(content).hexdigest()}
             )
 
-    def download(
-        self, activity_id: str, format: Garmin.ActivityDownloadFormat
-    ) -> bytes:
+    def download(self, activity_id: str) -> bytes:
         if self.stop.wait(self.delay):
             raise InterruptedError("Collection stopped.")
         try:
             return request(
-                f"download_activity_{format.name.lower()}",
-                lambda: self.client.download_activity(activity_id, dl_fmt=format),
+                "download_activity_original",
+                lambda: self.client.download_activity(
+                    activity_id, dl_fmt=Garmin.ActivityDownloadFormat.ORIGINAL
+                ),
             )
         except Exception as error:
             if status_code(error) in {204, 404}:
@@ -225,76 +205,60 @@ class Collector:
             raise
 
     def device_sync(self) -> None:
-        data = self.fetch("get_device_last_used") or {}
-        if data.get("lastUsedDeviceUploadTime"):
-            self.store.replace(
-                "device",
-                [
-                    Sample(
-                        "DeviceSync", timestamp(data["lastUsedDeviceUploadTime"]), data
-                    )
-                ],
-            )
+        self.fetch("get_device_last_used")
 
 
 def collect_weather(store: Store) -> None:
+    activities = store.connection.execute(
+        'SELECT "activityId", "startTimeGMT", "startLatitude", "startLongitude" '
+        'FROM garmin.activities WHERE "startLatitude" IS NOT NULL '
+        'AND "startLongitude" IS NOT NULL'
+    ).fetchall()
     with httpx2.Client(timeout=30) as client:
-        for summary in store.samples("ActivitySummary"):
-            marker = digest(
-                [
-                    summary.time,
-                    summary.fields.get("startLatitude"),
-                    summary.fields.get("startLongitude"),
-                    store.state(f"activity:{summary.entity}"),
-                ]
-            )
-            key = f"weather:{summary.entity}"
-            if store.state(key) == marker:
-                continue
-            point = next(
-                (
-                    row
-                    for row in store.samples("ActivityGPS", summary.entity)
-                    if row.fields.get("Latitude") is not None
-                    and row.fields.get("Longitude") is not None
-                ),
-                None,
-            )
-            if point is None:
-                continue
+        for activity in activities:
+            entity = str(activity["activityId"])
             url = weather_url(
-                point.fields["Latitude"],
-                point.fields["Longitude"],
-                int(summary.time.timestamp()),
+                activity["startLatitude"],
+                activity["startLongitude"],
+                int(activity["startTimeGMT"].timestamp()),
             )
+            key = f"weather:{entity}"
+            if store.state(key) == url:
+                continue
             try:
-                payload = request(
+                data = request(
                     "open_meteo",
                     lambda url=url: client.get(url).raise_for_status().json(),
                 )
-                store.archive(
-                    "open-meteo", summary.entity, {"url": url, "data": payload}
-                )
-                weather = parse_weather(payload)
-                if weather is None:
-                    continue
-                fields = {
-                    "Temperature": weather.temperature,
-                    "FeelsLike": weather.feels_like,
-                    "Humidity": weather.humidity,
-                    "WindSpeed": weather.wind_speed,
-                    "WindDirection": weather.wind_direction,
-                    "Wind": f"{round(weather.wind_speed)} mph {compass(weather.wind_direction)}",
-                }
-                with store.connection.transaction():
-                    store.replace(
-                        key,
-                        [
-                            Sample(
-                                "ActivityWeather", summary.time, fields, summary.entity
-                            )
-                        ],
-                    )
-                    store.set_state(key, marker)
             except httpx2.HTTPError:
-                LOG.warning("Weather request failed for activity %s", summary.entity)
+                LOG.warning("Weather request failed for activity %s", entity)
+                continue
+            payload = {"url": url, "data": data}
+            store.archive("open-meteo", entity, payload)
+            with store.connection.transaction():
+                store.replace(project("open-meteo", entity, payload))
+                store.set_state(key, url)
+
+
+def rebuild(store: Store) -> None:
+    with store.connection.transaction():
+        store.connection.execute("DELETE FROM garmin.state WHERE key LIKE 'derive:%'")
+        with store.connection.cursor(name="responses") as cursor:
+            cursor.execute(
+                "SELECT DISTINCT ON (endpoint, key) endpoint, key, payload "
+                "FROM garmin.responses ORDER BY endpoint, key, last_seen DESC"
+            )
+            for row in cursor:
+                store.replace(project(row["endpoint"], row["key"], row["payload"]))
+                if row["endpoint"] == "open-meteo":
+                    store.set_state(f"weather:{row['key']}", row["payload"]["url"])
+        with store.connection.cursor(name="files") as cursor:
+            cursor.execute(
+                "SELECT DISTINCT ON (key) key, content FROM garmin.files "
+                "WHERE key NOT LIKE '%.tcx' ORDER BY key, captured_at DESC"
+            )
+            for row in cursor:
+                try:
+                    store.replace(fit(row["key"], bytes(row["content"])))
+                except fitdecode.FitError, ValueError:
+                    LOG.warning("FIT decode failed for activity %s", row["key"])

@@ -5,11 +5,11 @@ archives Garmin data in TimescaleDB. It includes personal Grafana dashboards wit
 
 The collector retains complete API responses and original activity files, including fields that the dashboards do not use.
 Changed responses remain in the archive. Identical responses share one archive entry.
-The collector replaces corrected samples in a transaction. Repeat imports do not add duplicate samples.
+The collector replaces corrected documents in a transaction. Repeat imports do not add duplicate rows.
 There is no retention policy.
 
-The collector computes activity labels, best efforts, step records, sleep stages, and activity weather.
-These replace the separate `derive.py` cron job. SQL computes record progression across all imported runs.
+The collector computes best efforts and requests activity weather.
+Dashboard SQL computes activity labels, step records, sleep stages, and record progression.
 
 ## Setup
 
@@ -29,7 +29,7 @@ Set these environment variables in `.env.local` or the container environment:
 | `GARMINCONNECT_EMAIL` | Garmin account email | None |
 | `GARMINCONNECT_BASE64_PASSWORD` | Base64 Garmin password | None |
 | `DATABASE_URL` | PostgreSQL connection URI | Standard `PG*` variables |
-| `USER_TIMEZONE` | Local calendar dates and sleep axis | `TZ`, then `America/Chicago` |
+| `USER_TIMEZONE` | Local calendar dates | `TZ`, then `America/Chicago` |
 | `TOKEN_DIR` | Persistent Garmin token directory | `.local/tokens`; `/data/tokens` in Docker |
 | `UPDATE_INTERVAL_SECONDS` | Delay between collection cycles | `300` |
 | `RATE_LIMIT_CALLS_SECONDS` | Delay before each Garmin request | `5` |
@@ -38,8 +38,11 @@ Set these environment variables in `.env.local` or the container environment:
 | `FETCH_SELECTION` | Comma-separated data categories | See `collector.py` |
 
 The default categories match the upstream collector. Additional categories include training status, training readiness, hill score, endurance score, blood pressure, hydration, and lactate threshold.
-All responses enter `garmin.responses`. Normalized samples enter the `garmin.samples` hypertable. Original activity files enter `garmin.files`.
-The dashboard SQL views expose typed columns from the samples.
+All tables are in the `garmin` schema. All responses enter `garmin.responses`. Original activity files enter `garmin.files`.
+The collector projects each Garmin document into relational tables with the Garmin names, for example `garmin."heartRateValues"."heartrate"`.
+FIT messages enter tables with a `fit_` prefix and FIT SDK field names, for example `garmin.fit_record.heart_rate`.
+Best efforts enter `garmin.best_effort`. Activity weather enters `garmin.activity_weather`.
+The additional categories stay in the archive only. Use `rebuild` to fill the tables again from the archive.
 
 Use `login` in a terminal if Garmin requires MFA. Retain the token directory between container runs.
 

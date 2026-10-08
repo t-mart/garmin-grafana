@@ -104,7 +104,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT extract(epoch FROM max(time)) * 1000 AS \"Value\" FROM garmin.\"DeviceSync\"",
+          "rawSql": "SELECT extract(epoch FROM max(\"lastUsedDeviceUploadTime\")) * 1000 AS \"Value\"\nFROM garmin.mylastused",
           "format": "table",
           "hide": false
         }
@@ -165,7 +165,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT avg(\"restingHeartRate\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "rawSql": "SELECT avg(\"restingHeartRate\") AS \"Value\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date",
           "format": "table",
           "hide": false
         }
@@ -224,7 +224,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT avg(\"averageSpo2\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "rawSql": "SELECT avg(\"averageSpo2\") AS \"Value\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date",
           "format": "table",
           "hide": false
         }
@@ -283,7 +283,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT avg(\"sleepTimeSeconds\") AS \"Value\"\nFROM garmin.\"SleepSummary\" WHERE $__timeFilter(time)",
+          "rawSql": "SELECT avg(\"sleepTimeSeconds\") AS \"Value\"\nFROM garmin.\"dailySleepDTO\"\nWHERE $__timeFilter(\"sleepEndTimestampGMT\")",
           "format": "table",
           "hide": false
         }
@@ -342,7 +342,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT avg(\"totalSteps\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "rawSql": "SELECT avg(\"totalSteps\") AS \"Value\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date",
           "format": "table",
           "hide": false
         }
@@ -401,7 +401,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT avg(\"totalDistanceMeters\") / 1609.344 AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "rawSql": "SELECT avg(\"totalDistanceMeters\") / 1609.344 AS \"Value\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date",
           "format": "table",
           "hide": false
         }
@@ -460,7 +460,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT avg(\"highlyActiveSeconds\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "rawSql": "SELECT avg(\"highlyActiveSeconds\") AS \"Value\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date",
           "format": "table",
           "hide": false
         }
@@ -519,7 +519,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT avg(\"highStressDuration\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "rawSql": "SELECT avg(\"highStressDuration\") AS \"Value\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date",
           "format": "table",
           "hide": false
         }
@@ -578,7 +578,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT avg(\"bodyBatteryChargedValue\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "rawSql": "SELECT avg(\"bodyBatteryChargedValue\") AS \"Value\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date",
           "format": "table",
           "hide": false
         }
@@ -704,7 +704,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"HeartRate\") AS \"Heart Rate\"\nFROM garmin.\"HeartRateIntraday\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"timestamp\", ${TimeZone:sqlstring}) AS time, avg(heartrate) AS \"Heart Rate\"\nFROM garmin.\"heartRateValues\"\nWHERE $__timeFilter(\"timestamp\")\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         }
@@ -898,7 +898,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT mean_value AS \"Heart rate histogram\" FROM (SELECT avg(\"HeartRate\") AS mean_value FROM garmin.\"HeartRateIntraday\" WHERE $__timeFilter(time) GROUP BY time_bucket(interval '1 minute', time)) AS samples WHERE mean_value <= 96",
+          "rawSql": "SELECT mean_value AS \"Heart rate histogram\"\nFROM (SELECT avg(heartrate) AS mean_value FROM garmin.\"heartRateValues\" WHERE $__timeFilter(\"timestamp\") GROUP BY time_bucket(interval '1 minute', \"timestamp\")) AS samples\nWHERE mean_value <= 96",
           "format": "table",
           "hide": false
         },
@@ -910,7 +910,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT mean_value AS \"Heart rate histogram > 96\" FROM (SELECT avg(\"HeartRate\") AS mean_value FROM garmin.\"HeartRateIntraday\" WHERE $__timeFilter(time) GROUP BY time_bucket(interval '1 minute', time)) AS samples WHERE mean_value > 96",
+          "rawSql": "SELECT mean_value AS \"Heart rate histogram > 96\"\nFROM (SELECT avg(heartrate) AS mean_value FROM garmin.\"heartRateValues\" WHERE $__timeFilter(\"timestamp\") GROUP BY time_bucket(interval '1 minute', \"timestamp\")) AS samples\nWHERE mean_value > 96",
           "format": "table",
           "hide": false
         },
@@ -922,7 +922,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT mean_value AS \"Heart rate histogram < 60\" FROM (SELECT avg(\"HeartRate\") AS mean_value FROM garmin.\"HeartRateIntraday\" WHERE $__timeFilter(time) GROUP BY time_bucket(interval '1 minute', time)) AS samples WHERE mean_value < 60",
+          "rawSql": "SELECT mean_value AS \"Heart rate histogram < 60\"\nFROM (SELECT avg(heartrate) AS mean_value FROM garmin.\"heartRateValues\" WHERE $__timeFilter(\"timestamp\") GROUP BY time_bucket(interval '1 minute', \"timestamp\")) AS samples\nWHERE mean_value < 60",
           "format": "table",
           "hide": false
         },
@@ -934,7 +934,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT mean_value AS \"Heart rate histogram > 110\" FROM (SELECT avg(\"HeartRate\") AS mean_value FROM garmin.\"HeartRateIntraday\" WHERE $__timeFilter(time) GROUP BY time_bucket(interval '1 minute', time)) AS samples WHERE mean_value > 110",
+          "rawSql": "SELECT mean_value AS \"Heart rate histogram > 110\"\nFROM (SELECT avg(heartrate) AS mean_value FROM garmin.\"heartRateValues\" WHERE $__timeFilter(\"timestamp\") GROUP BY time_bucket(interval '1 minute', \"timestamp\")) AS samples\nWHERE mean_value > 110",
           "format": "table",
           "hide": false
         }
@@ -1055,7 +1055,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"BreathingRate\") AS \"BR\"\nFROM garmin.\"BreathingRateIntraday\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"timestamp\", ${TimeZone:sqlstring}) AS time, avg(respiration) AS \"BR\"\nFROM garmin.\"respirationValuesArray\"\nWHERE respiration >= 0 AND $__timeFilter(\"timestamp\")\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         }
@@ -1283,7 +1283,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"averageSpO2Value\") AS \"Avg SpO2\"\nFROM garmin.\"SleepSummary\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS time, avg(\"averageSpO2Value\") AS \"Avg SpO2\"\nFROM garmin.\"dailySleepDTO\"\nWHERE \"sleepEndTimestampGMT\" >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND \"sleepEndTimestampGMT\" <= $__timeTo()::timestamptz\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         },
@@ -1295,7 +1295,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"hrvValue\") AS \"Avg HRV\"\nFROM garmin.\"HRV_Intraday\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"readingTimeGMT\", ${TimeZone:sqlstring}) AS time, avg(\"hrvValue\") AS \"Avg HRV\"\nFROM garmin.\"hrvReadings\"\nWHERE \"readingTimeGMT\" >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND \"readingTimeGMT\" <= $__timeTo()::timestamptz\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         },
@@ -1307,7 +1307,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"restingHeartRate\") AS \"Avg Resting HR\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS time, avg(\"restingHeartRate\") AS \"Avg Resting HR\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         }
@@ -1501,7 +1501,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"BreathingRate\") AS \"Avg Breathing Rate\"\nFROM garmin.\"BreathingRateIntraday\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"timestamp\", ${TimeZone:sqlstring}) AS time, avg(respiration) AS \"Avg Breathing Rate\"\nFROM garmin.\"respirationValuesArray\"\nWHERE respiration >= 0 AND \"timestamp\" >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND \"timestamp\" <= $__timeTo()::timestamptz\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         },
@@ -1513,7 +1513,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"stressLevel\") AS \"Avg Stress\"\nFROM garmin.\"StressIntraday\" WHERE (\"stressLevel\" >= 0) AND time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"timestamp\", ${TimeZone:sqlstring}) AS time, avg(\"stressLevel\") AS \"Avg Stress\"\nFROM garmin.\"stressValuesArray\"\nWHERE (\"stressLevel\" >= 0) AND \"timestamp\" >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND \"timestamp\" <= $__timeTo()::timestamptz\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         },
@@ -1525,7 +1525,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"avgSleepStress\") AS \"Avg Sleeping Stress\"\nFROM garmin.\"SleepSummary\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS time, avg(\"avgSleepStress\") AS \"Avg Sleeping Stress\"\nFROM garmin.\"dailySleepDTO\"\nWHERE \"sleepEndTimestampGMT\" >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND \"sleepEndTimestampGMT\" <= $__timeTo()::timestamptz\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         }
@@ -1665,7 +1665,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"stressLevel\") AS \"Stress\"\nFROM garmin.\"StressIntraday\"\nWHERE $__timeFilter(time) AND \"stressLevel\" >= 0\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"timestamp\", ${TimeZone:sqlstring}) AS time, avg(\"stressLevel\") AS \"Stress\"\nFROM garmin.\"stressValuesArray\"\nWHERE $__timeFilter(\"timestamp\") AND \"stressLevel\" >= 0\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         },
@@ -1677,7 +1677,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"BodyBatteryLevel\") AS \"Body Battery\"\nFROM garmin.\"BodyBatteryIntraday\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"timestamp\", ${TimeZone:sqlstring}) AS time, avg(\"bodyBatteryLevel\") AS \"Body Battery\"\nFROM garmin.\"bodyBatteryValuesArray\"\nWHERE $__timeFilter(\"timestamp\")\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         }
@@ -1997,7 +1997,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"lowStressDuration\") AS \"Low Stress duration\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"lowStressDuration\") AS \"Low Stress duration\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2009,7 +2009,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"restStressDuration\") AS \"Rest stress duration\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"restStressDuration\") AS \"Rest stress duration\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2021,7 +2021,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"mediumStressDuration\") AS \"Medium stress duration\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"mediumStressDuration\") AS \"Medium stress duration\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2033,7 +2033,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"uncategorizedStressDuration\") AS \"Uncategorized stress duration\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"uncategorizedStressDuration\") AS \"Uncategorized stress duration\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2045,7 +2045,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"highStressDuration\") AS \"High stress duration\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"highStressDuration\") AS \"High stress duration\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         }
@@ -2184,7 +2184,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"bodyBatteryChargedValue\") AS \"Charged\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"bodyBatteryChargedValue\") AS \"Charged\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2196,7 +2196,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"bodyBatteryDrainedValue\") * -1 AS \"Drained\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"bodyBatteryDrainedValue\") * -1 AS \"Drained\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         }
@@ -2284,7 +2284,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Day\", \"Clock\", \"Stage\"\nFROM garmin.\"SleepStage\" WHERE $__timeFilter(time)\nORDER BY time",
+          "rawSql": "SELECT time AS \"Time\", extract(epoch FROM d.\"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}) * 1000 AS \"Day\", extract(epoch FROM ((DATE '2000-01-03' + (extract(hour FROM time AT TIME ZONE ${TimeZone:sqlstring}) < 18)::int) + (time AT TIME ZONE ${TimeZone:sqlstring})::time) AT TIME ZONE ${TimeZone:sqlstring}) * 1000 AS \"Clock\", l.\"activityLevel\" AS \"Stage\"\nFROM garmin.\"dailySleepDTO\" d CROSS JOIN generate_series(d.\"sleepStartTimestampGMT\", d.\"sleepEndTimestampGMT\" - interval '1 second', interval '5 minutes') AS time JOIN garmin.\"sleepLevels\" l ON l.\"calendarDate\" = d.\"calendarDate\" AND time >= l.\"startGMT\" AND time < l.\"endGMT\"\nWHERE $__timeFilter(time)\nORDER BY time",
           "format": "table",
           "hide": false
         }
@@ -2452,7 +2452,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"deepSleepSeconds\") AS \"Deep Sleep\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS \"Time\", avg(\"deepSleepSeconds\") AS \"Deep Sleep\"\nFROM garmin.\"dailySleepDTO\"\nWHERE $__timeFilter(\"sleepEndTimestampGMT\")\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2464,7 +2464,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"lightSleepSeconds\") AS \"Light Sleep\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS \"Time\", avg(\"lightSleepSeconds\") AS \"Light Sleep\"\nFROM garmin.\"dailySleepDTO\"\nWHERE $__timeFilter(\"sleepEndTimestampGMT\")\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2476,7 +2476,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"remSleepSeconds\") AS \"REM Sleep\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS \"Time\", avg(\"remSleepSeconds\") AS \"REM Sleep\"\nFROM garmin.\"dailySleepDTO\"\nWHERE $__timeFilter(\"sleepEndTimestampGMT\")\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2488,7 +2488,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"awakeSleepSeconds\") AS \"Awake\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS \"Time\", avg(\"awakeSleepSeconds\") AS \"Awake\"\nFROM garmin.\"dailySleepDTO\"\nWHERE $__timeFilter(\"sleepEndTimestampGMT\")\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         }
@@ -2616,7 +2616,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"sleepScore\") AS \"Sleep Score\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), d.\"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS \"Time\", avg(s.value) AS \"Sleep Score\"\nFROM garmin.\"dailySleepDTO\" d JOIN garmin.\"sleepScores\" s ON s.\"calendarDate\" = d.\"calendarDate\" AND s.key = 'overall'\nWHERE $__timeFilter(d.\"sleepEndTimestampGMT\")\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         }
@@ -2768,7 +2768,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"deepSleepSeconds\") AS \"Deep\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS \"Time\", avg(\"deepSleepSeconds\") AS \"Deep\"\nFROM garmin.\"dailySleepDTO\"\nWHERE $__timeFilter(\"sleepEndTimestampGMT\")\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2780,7 +2780,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"lightSleepSeconds\") AS \"Light\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS \"Time\", avg(\"lightSleepSeconds\") AS \"Light\"\nFROM garmin.\"dailySleepDTO\"\nWHERE $__timeFilter(\"sleepEndTimestampGMT\")\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2792,7 +2792,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"remSleepSeconds\") AS \"REM\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS \"Time\", avg(\"remSleepSeconds\") AS \"REM\"\nFROM garmin.\"dailySleepDTO\"\nWHERE $__timeFilter(\"sleepEndTimestampGMT\")\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -2804,7 +2804,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"awakeSleepSeconds\") AS \"Awake\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"sleepEndTimestampGMT\", ${TimeZone:sqlstring}) AS \"Time\", avg(\"awakeSleepSeconds\") AS \"Awake\"\nFROM garmin.\"dailySleepDTO\"\nWHERE $__timeFilter(\"sleepEndTimestampGMT\")\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         }
@@ -2930,7 +2930,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"restlessMomentsCount\" AS \"Restless moments\", \"awakeCount\" AS \"Times awake\"\nFROM garmin.\"SleepSummary\" WHERE $__timeFilter(time)\nORDER BY time",
+          "rawSql": "SELECT d.\"sleepEndTimestampGMT\" AS \"Time\", s.\"restlessMomentsCount\" AS \"Restless moments\", d.\"awakeCount\" AS \"Times awake\"\nFROM garmin.\"dailySleepDTO\" d JOIN garmin.\"dailySleepData\" s USING (\"calendarDate\")\nWHERE $__timeFilter(d.\"sleepEndTimestampGMT\")\nORDER BY d.\"sleepEndTimestampGMT\"",
           "format": "table",
           "hide": false
         }
@@ -3045,7 +3045,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"totalSteps\") AS \"Steps\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"totalSteps\") AS \"Steps\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         }
@@ -3150,7 +3150,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"totalDistanceMeters\") / 1609.344 AS \"Distance Covered\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"totalDistanceMeters\") / 1609.344 AS \"Distance Covered\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         }
@@ -3283,7 +3283,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"bmrKilocalories\") AS \"BMR Calories\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"bmrKilocalories\") AS \"BMR Calories\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -3295,7 +3295,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"activeKilocalories\") AS \"Activity Calories\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"activeKilocalories\") AS \"Activity Calories\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         }
@@ -3454,7 +3454,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"moderateIntensityMinutes\") * 60 AS \"Moderate Intensity\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"moderateIntensityMinutes\") * 60 AS \"Moderate Intensity\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -3466,7 +3466,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"vigorousIntensityMinutes\") * 60 AS \"Vigorous Intensity\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"vigorousIntensityMinutes\") * 60 AS \"Vigorous Intensity\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         }
@@ -3614,7 +3614,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"sedentarySeconds\") AS \"Sedentary\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"sedentarySeconds\") AS \"Sedentary\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -3626,7 +3626,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"highlyActiveSeconds\") AS \"Intense Activity\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"highlyActiveSeconds\") AS \"Intense Activity\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -3638,7 +3638,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"activeSeconds\") AS \"Fair Activity\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"activeSeconds\") AS \"Fair Activity\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         },
@@ -3650,7 +3650,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"sleepingSeconds\") AS \"Sleeping\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS \"Time\", avg(\"sleepingSeconds\") AS \"Sleeping\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "table",
           "hide": false
         }
@@ -3825,7 +3825,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"VO2_max_value\") AS \"VO2 Max\"\nFROM garmin.\"VO2_Max\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS time, avg(\"vo2MaxPreciseValue\") AS \"VO2 Max\"\nFROM garmin.maxmet\nWHERE key = 'generic' AND \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         }
@@ -3963,7 +3963,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"weight\") / 453.59237 AS \"Weight in lbs\"\nFROM garmin.\"BodyComposition\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"timestampGMT\", ${TimeZone:sqlstring}) AS time, avg(\"weight\") / 453.59237 AS \"Weight in lbs\"\nFROM garmin.\"allWeightMetrics\"\nWHERE $__timeFilter(\"timestampGMT\")\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         }

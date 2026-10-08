@@ -116,7 +116,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT DISTINCT ON (\"Distance\") \"Distance\", \"Seconds\", \"Duration\", \"Date\", \"Meters\", \"ActivityID\" FROM garmin.\"BestEffort\" ORDER BY \"Distance\", \"Seconds\", time, \"ActivityID\"",
+          "rawSql": "SELECT DISTINCT ON (e.distance) e.distance AS \"Distance\", e.seconds AS \"Seconds\", e.duration AS \"Duration\", to_char(a.\"startTimeLocal\", 'Mon FMDD, YYYY') AS \"Date\", e.meters AS \"Meters\", e.activity_id AS \"ActivityID\"\nFROM garmin.best_effort e JOIN garmin.activities a ON a.\"activityId\" = e.activity_id\nORDER BY e.distance, e.seconds, a.\"startTimeGMT\", e.activity_id",
           "format": "table",
           "hide": false
         }
@@ -376,7 +376,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time AS \"Time\", \"Seconds\" AS \"Effort\", \"Best\" AS \"Record at the time\", \"Record\" AS \"New record\", \"Duration\", \"Pace\", \"ActivityName\" AS \"Run\", \"ActivityID\"\nFROM garmin.\"BestEffort\" WHERE \"Distance\" IN (${Distance:sqlstring})\nORDER BY time",
+          "rawSql": "SELECT a.\"startTimeGMT\" AS \"Time\", e.seconds AS \"Effort\", min(e.seconds) OVER (w ROWS UNBOUNDED PRECEDING) AS \"Record at the time\", CASE WHEN e.seconds < coalesce(min(e.seconds) OVER (w ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING), 'Infinity') THEN 1 ELSE 0 END AS \"New record\", e.duration AS \"Duration\", e.pace AS \"Pace\", a.\"activityName\" AS \"Run\", e.activity_id AS \"ActivityID\"\nFROM garmin.best_effort e JOIN garmin.activities a ON a.\"activityId\" = e.activity_id\nWHERE e.distance IN (${Distance:sqlstring})\nWINDOW w AS (PARTITION BY e.distance ORDER BY a.\"startTimeGMT\", e.activity_id)\nORDER BY a.\"startTimeGMT\"",
           "format": "table",
           "hide": false
         }
@@ -540,7 +540,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS time, avg(\"time5K\") AS \"Time 5K\"\nFROM garmin.\"RacePredictions\"\nWHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS time, avg(\"time5K\") AS \"Time 5K\"\nFROM garmin.racepredictions\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         },
@@ -552,7 +552,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS time, avg(\"time10K\") AS \"Time 10K\"\nFROM garmin.\"RacePredictions\"\nWHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS time, avg(\"time10K\") AS \"Time 10K\"\nFROM garmin.racepredictions\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         },
@@ -564,7 +564,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS time, avg(\"timeHalfMarathon\") AS \"Half Marathon\"\nFROM garmin.\"RacePredictions\"\nWHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS time, avg(\"timeHalfMarathon\") AS \"Half Marathon\"\nFROM garmin.racepredictions\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         },
@@ -576,7 +576,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS time, avg(\"timeMarathon\") AS \"Full Marathon\"\nFROM garmin.\"RacePredictions\"\nWHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT time_bucket(interval '1 day', \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS time, avg(\"timeMarathon\") AS \"Full Marathon\"\nFROM garmin.racepredictions\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         }
@@ -659,7 +659,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"Steps\", \"Title\", \"Order\" FROM garmin.\"StepRecord\" ORDER BY \"Order\"",
+          "rawSql": "WITH days AS (SELECT \"calendarDate\" AS day, \"totalSteps\" AS steps FROM garmin.usersummary WHERE \"totalSteps\" IS NOT NULL) (SELECT steps AS \"Steps\", 'Best day: ' || to_char(day, 'Mon FMDD, YYYY') AS \"Title\", 1 AS \"Order\" FROM days ORDER BY steps DESC, day LIMIT 1)\nUNION ALL (SELECT sum(steps), 'Best week: ' || to_char(date_trunc('week', day), 'Mon FMDD') || ' to ' || to_char(date_trunc('week', day) + interval '6 days', 'Mon FMDD, YYYY'), 2 FROM days GROUP BY date_trunc('week', day) ORDER BY 1 DESC, date_trunc('week', day) LIMIT 1)\nUNION ALL (SELECT sum(steps), 'Best month: ' || to_char(date_trunc('month', day), 'FMMonth YYYY'), 3 FROM days GROUP BY date_trunc('month', day) ORDER BY 1 DESC, date_trunc('month', day) LIMIT 1)\nORDER BY 3",
           "format": "table",
           "hide": false
         }
@@ -714,13 +714,13 @@
         "multi": true,
         "name": "Distance",
         "options": [],
-        "query": "SELECT DISTINCT \"Distance\" AS __text, \"Distance\" AS __value, \"Meters\" FROM garmin.\"BestEffort\" ORDER BY \"Meters\"",
+        "query": "SELECT DISTINCT distance AS __text, distance AS __value, meters\nFROM garmin.best_effort\nORDER BY meters",
         "type": "query",
         "datasource": {
           "type": "grafana-postgresql-datasource",
           "uid": "garmin_timescaledb"
         },
-        "definition": "SELECT DISTINCT \"Distance\" AS __text, \"Distance\" AS __value, \"Meters\" FROM garmin.\"BestEffort\" ORDER BY \"Meters\"",
+        "definition": "SELECT DISTINCT distance AS __text, distance AS __value, meters\nFROM garmin.best_effort\nORDER BY meters",
         "refresh": 1
       },
       {
