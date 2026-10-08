@@ -1,0 +1,59 @@
+name: Check and publish
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      timescaledb:
+        image: timescale/timescaledb:2.30.2-pg18
+        env:
+          POSTGRES_USER: garmin
+          POSTGRES_PASSWORD: garmin
+          POSTGRES_DB: garmin
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready --username=garmin --dbname=garmin"
+          --health-interval 2s --health-timeout 5s --health-retries 30
+    env:
+      TEST_DATABASE_URL: postgresql://garmin:garmin@localhost:5432/garmin
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.1.0
+        with:
+          version: "0.12.23"
+          python-version: "3.14"
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run --no-sync ruff check .
+      - run: uv run --no-sync ruff format --check .
+      - run: uv run --no-sync ty check
+      - run: uv run --no-sync python -m unittest discover --start-directory tests
+
+  publish:
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/garmin-grafana:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

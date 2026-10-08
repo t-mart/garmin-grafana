@@ -48,8 +48,8 @@
   "panels": [
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -89,14 +89,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"distance\" / 1609.344 AS \"Value\" FROM \"ActivitySummary\" WHERE \"ActivityID\" = '$Activity' AND \"activityType\" != 'No Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"distance\" / 1609.344 AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Distance",
@@ -104,8 +106,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -145,14 +147,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"elapsedDuration\" AS \"Value\" FROM \"ActivitySummary\" WHERE \"ActivityID\" = '$Activity' AND \"activityType\" != 'No Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"elapsedDuration\" AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Duration",
@@ -160,8 +164,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -201,14 +205,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT 1609.344 / \"averageSpeed\" AS \"Value\" FROM \"ActivitySummary\" WHERE \"ActivityID\" = '$Activity' AND \"activityType\" != 'No Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT 1609.344 / NULLIF(\"averageSpeed\", 0) AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Pace (min/mi)",
@@ -216,8 +222,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -257,14 +263,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"averageHR\" AS \"Value\" FROM \"ActivitySummary\" WHERE \"ActivityID\" = '$Activity' AND \"activityType\" != 'No Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"averageHR\" AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Average heart rate",
@@ -272,8 +280,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -313,14 +321,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"maxHR\" AS \"Value\" FROM \"ActivitySummary\" WHERE \"ActivityID\" = '$Activity' AND \"activityType\" != 'No Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"maxHR\" AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Maximum heart rate",
@@ -328,8 +338,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -369,14 +379,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"elevationGain\" * 3.28084 AS \"Value\" FROM \"ActivitySummary\" WHERE \"ActivityID\" = '$Activity' AND \"activityType\" != 'No Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"elevationGain\" * 3.28084 AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Elevation gain",
@@ -384,8 +396,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -425,14 +437,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"calories\" AS \"Value\" FROM \"ActivitySummary\" WHERE \"ActivityID\" = '$Activity' AND \"activityType\" != 'No Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"calories\" AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Calories",
@@ -440,8 +454,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -481,14 +495,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"aerobicTrainingEffect\" AS \"Value\" FROM \"ActivitySummary\" WHERE \"ActivityID\" = '$Activity' AND \"activityType\" != 'No Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"aerobicTrainingEffect\" AS \"Value\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Training effect",
@@ -496,8 +512,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -537,14 +553,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"Temperature\" AS \"Value\" FROM \"ActivityWeather\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"Temperature\" AS \"Value\"\nFROM garmin.\"ActivityWeather\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Temperature",
@@ -553,8 +571,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -594,14 +612,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"FeelsLike\" AS \"Value\" FROM \"ActivityWeather\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"FeelsLike\" AS \"Value\"\nFROM garmin.\"ActivityWeather\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Feels like",
@@ -610,8 +630,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -651,14 +671,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"Humidity\" AS \"Value\" FROM \"ActivityWeather\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"Humidity\" AS \"Value\"\nFROM garmin.\"ActivityWeather\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Humidity",
@@ -667,8 +689,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -708,14 +730,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"Wind\" AS \"Value\" FROM \"ActivityWeather\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"Wind\" AS \"Value\"\nFROM garmin.\"ActivityWeather\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Wind",
@@ -724,8 +748,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -852,14 +876,16 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"Index\" AS \"Lap\", \"Distance\" / 1609.344 AS \"Distance\", \"Elapsed_Time\" AS \"Duration\", \"Elapsed_Time\" / (\"Distance\" / 1609.344) AS \"Pace\", \"Avg_HR\" AS \"Avg HR\", \"Max_HR\" AS \"Max HR\", \"Ascent\" * 3.28084 AS \"Ascent\", \"Descent\" * 3.28084 AS \"Descent\", (\"Ascent\" - \"Descent\") * 3.28084 AS \"Net elevation\" FROM \"ActivityLap\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Index\" AS \"Lap\", \"Distance\" / 1609.344 AS \"Distance\", \"Elapsed_Time\" AS \"Duration\", \"Elapsed_Time\" / NULLIF(\"Distance\" / 1609.344, 0) AS \"Pace\", \"Avg_HR\" AS \"Avg HR\", \"Max_HR\" AS \"Max HR\", \"Ascent\" * 3.28084 AS \"Ascent\", \"Descent\" * 3.28084 AS \"Descent\", (\"Ascent\" - \"Descent\") * 3.28084 AS \"Net elevation\"\nFROM garmin.\"ActivityLap\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Laps",
@@ -868,8 +894,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -988,7 +1014,7 @@
             "location": {
               "mode": "auto"
             },
-            "name": "Speed (Km/h)",
+            "name": "Speed (mph)",
             "opacity": 0.8,
             "tooltip": false,
             "type": "markers"
@@ -1012,51 +1038,52 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "alias": "lat",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
-          "query": "SELECT \"Latitude\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "I",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Latitude\" AS \"lat\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "lon",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
-          "query": "SELECT \"Longitude\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "J",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Longitude\" AS \"lon\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "HR",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
-          "query": "SELECT \"HeartRate\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"HeartRate\" AS \"HR\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"Speed\" * 2.23694 FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "B",
-          "resultFormat": "time_series",
-          "alias": "Speed (mph)"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Speed\" * 2.23694 AS \"Speed (mph)\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "GPS Track by Velocity",
@@ -1073,8 +1100,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1264,62 +1291,64 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "alias": "lat",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
-          "query": "SELECT \"Latitude\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "I",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Latitude\" AS \"lat\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "lon",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
-          "query": "SELECT \"Longitude\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "J",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Longitude\" AS \"lon\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "HR",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
-          "query": "SELECT \"HeartRate\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"HeartRate\" AS \"HR\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "speed",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
-          "query": "SELECT \"Speed\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "B",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Speed\" AS \"speed\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT last(\"hrZoneLowBoundary_1\") AS \"Zone 1\", last(\"hrZoneLowBoundary_2\") AS \"Zone 2\", last(\"hrZoneLowBoundary_3\") AS \"Zone 3\", last(\"hrZoneLowBoundary_4\") AS \"Zone 4\", last(\"hrZoneLowBoundary_5\") AS \"Zone 5\" FROM \"ActivitySummary\" WHERE \"activityType\" != 'No Activity' AND \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "Z",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"hrZoneLowBoundary_1\" AS \"Zone 1\", \"hrZoneLowBoundary_2\" AS \"Zone 2\", \"hrZoneLowBoundary_3\" AS \"Zone 3\", \"hrZoneLowBoundary_4\" AS \"Zone 4\", \"hrZoneLowBoundary_5\" AS \"Zone 5\"\nFROM garmin.\"ActivitySummary\" WHERE \"activityType\" != 'No Activity' AND \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "GPS Track by Heart Rate",
@@ -1393,8 +1422,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "The line color shows the heart rate zone. The zone limits come from the activity.",
       "fieldConfig": {
@@ -1457,24 +1486,28 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"DurationSeconds\" AS \"Elapsed\", \"HeartRate\" AS \"Heart rate\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"HeartRate\" AS \"Heart rate\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"hrZoneLowBoundary_1\" AS \"Zone 1\", \"hrZoneLowBoundary_2\" AS \"Zone 2\", \"hrZoneLowBoundary_3\" AS \"Zone 3\", \"hrZoneLowBoundary_4\" AS \"Zone 4\", \"hrZoneLowBoundary_5\" AS \"Zone 5\" FROM \"ActivitySummary\" WHERE \"ActivityID\" = '$Activity' AND \"activityType\" != 'No Activity'",
-          "rawQuery": true,
           "refId": "B",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"hrZoneLowBoundary_1\" AS \"Zone 1\", \"hrZoneLowBoundary_2\" AS \"Zone 2\", \"hrZoneLowBoundary_3\" AS \"Zone 3\", \"hrZoneLowBoundary_4\" AS \"Zone 4\", \"hrZoneLowBoundary_5\" AS \"Zone 5\"\nFROM garmin.\"ActivitySummary\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"activityType\" != 'No Activity'\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Heart rate",
@@ -1549,8 +1582,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1629,24 +1662,28 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"DurationSeconds\" AS \"Elapsed\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT 1609.344 / \"Speed\" AS \"Pace\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity' AND \"Speed\" > 0.894",
-          "rawQuery": true,
           "refId": "B",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", 1609.344 / \"Speed\" AS \"Pace\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"Speed\" > 0.894\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Pace (min/mi)",
@@ -1672,8 +1709,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1761,14 +1798,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"DurationSeconds\" AS \"Elapsed\", (\"Cadence\" + \"Fractional_Cadence\") * 2 AS \"Cadence\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity' AND \"Cadence\" >= 25",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", (\"Cadence\" + \"Fractional_Cadence\") * 2 AS \"Cadence\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"Cadence\" >= 25\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Cadence",
@@ -1786,8 +1825,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1851,14 +1890,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"DurationSeconds\" AS \"Elapsed\", \"Altitude\" * 3.28084 AS \"Altitude\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"Altitude\" * 3.28084 AS \"Altitude\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Altitude",
@@ -1876,8 +1917,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1941,14 +1982,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"DurationSeconds\" AS \"Elapsed\", \"Power\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"Power\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Power",
@@ -1966,8 +2009,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2055,14 +2098,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"DurationSeconds\" AS \"Elapsed\", \"Stance_Time\" AS \"Ground contact time\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"Stance_Time\" AS \"Ground contact time\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Ground contact time",
@@ -2080,8 +2125,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2169,14 +2214,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"DurationSeconds\" AS \"Elapsed\", \"Vertical_Oscillation\" / 10 AS \"Vertical oscillation\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"Vertical_Oscillation\" / 10 AS \"Vertical oscillation\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Vertical oscillation",
@@ -2194,8 +2241,124 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "points",
+            "fillOpacity": 0,
+            "gradientMode": "scheme",
+            "lineWidth": 3,
+            "pointSize": 5,
+            "showPoints": "always",
+            "spanNulls": false,
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "lineStyle": {
+              "fill": "solid"
+            }
+          },
+          "unit": "lengthm",
+          "decimals": 1,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              },
+              {
+                "color": "blue",
+                "value": 6.4
+              },
+              {
+                "color": "green",
+                "value": 8.2
+              },
+              {
+                "color": "orange",
+                "value": 9.8
+              },
+              {
+                "color": "red",
+                "value": 11.6
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Elapsed"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dthms"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 83
+      },
+      "id": 107,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xField": "Elapsed"
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Elapsed\", \"Step_Length\" / 1000 AS \"Stride length\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
+        }
+      ],
+      "title": "Stride length",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            }
+          }
+        }
+      ],
+      "type": "trend"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2293,7 +2456,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 83
+        "y": 91
       },
       "id": 57,
       "options": {
@@ -2313,39 +2476,40 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Heart Rate",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
-          "query": "SELECT \"HeartRate\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "B",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"HeartRate\" AS \"Heart Rate\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"Speed\" * 2.23694 FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity' AND \"Speed\" > 0.894",
-          "rawQuery": true,
           "refId": "C",
-          "resultFormat": "time_series",
-          "alias": "Speed"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Speed\" * 2.23694 AS \"Speed\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"Speed\" > 0.894\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Duration",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
-          "query": "SELECT \"DurationSeconds\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "D",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"DurationSeconds\" AS \"Duration\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Distance vs HR",
@@ -2373,8 +2537,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2455,7 +2619,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 91
+        "y": 99
       },
       "id": 55,
       "options": {
@@ -2497,27 +2661,28 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"Speed\" * 2.23694 FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity' AND \"Speed\" > 0.894",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "alias": "Speed (mph)"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Speed\" * 2.23694 AS \"Speed (mph)\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring} AND \"Speed\" > 0.894\nORDER BY time",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Heart Rate",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
-          "query": "SELECT \"HeartRate\" FROM \"ActivityGPS\" WHERE \"ActivityID\" = '$Activity'",
-          "rawQuery": true,
           "refId": "B",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"HeartRate\" AS \"Heart Rate\"\nFROM garmin.\"ActivityGPS\" WHERE \"ActivityID\" = ${Activity:sqlstring}\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Heart Rate vs Pace",
@@ -2539,21 +2704,27 @@
   "templating": {
     "list": [
       {
+        "name": "Datasource",
+        "label": "Datasource",
+        "type": "datasource",
+        "query": "grafana-postgresql-datasource",
+        "current": {},
+        "options": [],
+        "refresh": 1
+      },
+      {
         "current": {},
         "datasource": {
-          "type": "influxdb",
-          "uid": "garmin_influxdb"
+          "type": "grafana-postgresql-datasource",
+          "uid": "${Datasource}"
         },
-        "definition": "SELECT \"Option\" FROM \"ActivityIndex\" ORDER BY time DESC",
+        "definition": "SELECT \"Label\" AS __text, \"ActivityID\" AS __value FROM garmin.\"ActivityIndex\" ORDER BY time DESC",
         "label": "Activity",
         "name": "Activity",
         "options": [],
-        "query": {
-          "query": "SELECT \"Option\" FROM \"ActivityIndex\" ORDER BY time DESC",
-          "refId": "InfluxVariableQueryEditor-VariableQuery"
-        },
+        "query": "SELECT \"Label\" AS __text, \"ActivityID\" AS __value FROM garmin.\"ActivityIndex\" ORDER BY time DESC",
         "refresh": 2,
-        "regex": "/^(?<text>.*)\\|(?<value>\\d+)$/",
+        "regex": "",
         "sort": 0,
         "type": "query"
       }

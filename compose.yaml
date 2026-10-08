@@ -1,0 +1,16 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:2.30.2-pg18
+    environment:
+      POSTGRES_USER: garmin
+      POSTGRES_PASSWORD: garmin
+      POSTGRES_DB: garmin
+    ports:
+      - "127.0.0.1:55432:5432"
+    tmpfs:
+      - /var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "--username=garmin", "--dbname=garmin"]
+      interval: 2s
+      timeout: 5s
+      retries: 30

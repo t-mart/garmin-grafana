@@ -49,8 +49,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -109,14 +109,16 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT BOTTOM(\"Seconds\", 1) AS \"Seconds\", \"Duration\", \"Date\", \"Meters\", \"ActivityID\" FROM \"BestEffort\" GROUP BY \"Distance\"",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT DISTINCT ON (\"Distance\") \"Distance\", \"Seconds\", \"Duration\", \"Date\", \"Meters\", \"ActivityID\" FROM garmin.\"BestEffort\" ORDER BY \"Distance\", \"Seconds\", time, \"ActivityID\"",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Current records",
@@ -149,8 +151,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "Each dot is the fastest stretch of this distance inside one run. The line is the record at each date. Large dots set a new record.",
       "fieldConfig": {
@@ -367,14 +369,16 @@
       "repeatDirection": "h",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"Seconds\" AS \"Effort\", \"Best\" AS \"Record at the time\", \"Record\" AS \"New record\", \"Duration\", \"Pace\", \"ActivityName\" AS \"Run\", \"ActivityID\" FROM \"BestEffort\" WHERE \"Distance\" =~ /^$Distance$/",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Seconds\" AS \"Effort\", \"Best\" AS \"Record at the time\", \"Record\" AS \"New record\", \"Duration\", \"Pace\", \"ActivityName\" AS \"Run\", \"ActivityID\"\nFROM garmin.\"BestEffort\" WHERE \"Distance\" IN (${Distance:sqlstring})\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "$Distance",
@@ -383,8 +387,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -529,176 +533,52 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Time 5K",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "1d"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "RacePredictions",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "time5K"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS time, avg(\"time5K\") AS \"Time 5K\"\nFROM garmin.\"RacePredictions\"\nWHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         },
         {
-          "alias": "Time 10K",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "1d"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "RacePredictions",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "time10K"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS time, avg(\"time10K\") AS \"Time 10K\"\nFROM garmin.\"RacePredictions\"\nWHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         },
         {
-          "alias": "Half Marathon",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "1d"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "RacePredictions",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "timeHalfMarathon"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS time, avg(\"timeHalfMarathon\") AS \"Half Marathon\"\nFROM garmin.\"RacePredictions\"\nWHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         },
         {
-          "alias": "Full Marathon",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "1d"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "RacePredictions",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "D",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "timeMarathon"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS time, avg(\"timeMarathon\") AS \"Full Marathon\"\nFROM garmin.\"RacePredictions\"\nWHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         }
       ],
       "title": "Race Predictions",
@@ -719,8 +599,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -763,7 +643,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
+          "fields": "/Steps|__data\\.fields\\.Title/",
           "values": true
         },
         "showPercentChange": false,
@@ -772,14 +652,16 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"Steps\", \"Title\", \"Order\" FROM \"StepRecord\"",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"Steps\", \"Title\", \"Order\" FROM garmin.\"StepRecord\" ORDER BY \"Order\"",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Most steps",
@@ -819,6 +701,15 @@
   "templating": {
     "list": [
       {
+        "name": "Datasource",
+        "label": "Datasource",
+        "type": "datasource",
+        "query": "grafana-postgresql-datasource",
+        "current": {},
+        "options": [],
+        "refresh": 1
+      },
+      {
         "current": {
           "text": [
             "All"
@@ -831,50 +722,15 @@
         "label": "Distance",
         "multi": true,
         "name": "Distance",
-        "options": [
-          {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "0.5 km",
-            "value": "0.5 km"
-          },
-          {
-            "selected": false,
-            "text": "1 km",
-            "value": "1 km"
-          },
-          {
-            "selected": false,
-            "text": "1 mi",
-            "value": "1 mi"
-          },
-          {
-            "selected": false,
-            "text": "2 mi",
-            "value": "2 mi"
-          },
-          {
-            "selected": false,
-            "text": "5 km",
-            "value": "5 km"
-          },
-          {
-            "selected": false,
-            "text": "5 mi",
-            "value": "5 mi"
-          },
-          {
-            "selected": false,
-            "text": "10 km",
-            "value": "10 km"
-          }
-        ],
-        "query": "0.5 km,1 km,1 mi,2 mi,5 km,5 mi,10 km",
-        "type": "custom"
+        "options": [],
+        "query": "SELECT DISTINCT \"Distance\" AS __text, \"Distance\" AS __value, \"Meters\" FROM garmin.\"BestEffort\" ORDER BY \"Meters\"",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "${Datasource}"
+        },
+        "definition": "SELECT DISTINCT \"Distance\" AS __text, \"Distance\" AS __value, \"Meters\" FROM garmin.\"BestEffort\" ORDER BY \"Meters\"",
+        "refresh": 1
       },
       {
         "current": {

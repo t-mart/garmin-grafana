@@ -36,8 +36,8 @@
   "panels": [
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -87,7 +87,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "/^Time$/",
+          "fields": "Value",
           "values": false
         },
         "showPercentChange": false,
@@ -97,14 +97,16 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT last(\"HeartRate\") FROM \"HeartRateIntraday\"",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT extract(epoch FROM max(time)) * 1000 AS \"Value\" FROM garmin.\"DeviceSync\"",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Last Sync ",
@@ -114,8 +116,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "Average over the complete days in the time range. Today counts after it ends.",
       "fieldConfig": {
@@ -156,14 +158,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT mean(\"restingHeartRate\") AS \"Value\" FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms AND time <= now() - 1d",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(\"restingHeartRate\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Resting heart rate",
@@ -171,8 +175,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "Average over the complete days in the time range. Today counts after it ends.",
       "fieldConfig": {
@@ -213,14 +217,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT mean(\"averageSpo2\") AS \"Value\" FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms AND time <= now() - 1d",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(\"averageSpo2\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "SpO2",
@@ -228,8 +234,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "Average over the time range.",
       "fieldConfig": {
@@ -270,14 +276,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT mean(\"sleepTimeSeconds\") AS \"Value\" FROM \"SleepSummary\" WHERE $timeFilter",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(\"sleepTimeSeconds\") AS \"Value\"\nFROM garmin.\"SleepSummary\" WHERE $__timeFilter(time)",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Sleep",
@@ -285,8 +293,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "Average over the complete days in the time range. Today counts after it ends.",
       "fieldConfig": {
@@ -327,14 +335,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT mean(\"totalSteps\") AS \"Value\" FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms AND time <= now() - 1d",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(\"totalSteps\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Steps per day",
@@ -342,8 +352,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "Average over the complete days in the time range. Today counts after it ends.",
       "fieldConfig": {
@@ -384,14 +394,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT mean(\"totalDistanceMeters\") / 1609.344 AS \"Value\" FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms AND time <= now() - 1d",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(\"totalDistanceMeters\") / 1609.344 AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Distance per day",
@@ -399,8 +411,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "Average over the complete days in the time range. Today counts after it ends.",
       "fieldConfig": {
@@ -441,14 +453,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT mean(\"highlyActiveSeconds\") AS \"Value\" FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms AND time <= now() - 1d",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(\"highlyActiveSeconds\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "High activity per day",
@@ -456,8 +470,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "Average over the complete days in the time range. Today counts after it ends.",
       "fieldConfig": {
@@ -498,14 +512,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT mean(\"highStressDuration\") AS \"Value\" FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms AND time <= now() - 1d",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(\"highStressDuration\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "High stress per day",
@@ -513,8 +529,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "Average over the complete days in the time range. Today counts after it ends.",
       "fieldConfig": {
@@ -555,14 +571,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT mean(\"bodyBatteryChargedValue\") AS \"Value\" FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms AND time <= now() - 1d",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(\"bodyBatteryChargedValue\") AS \"Value\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz AND time < (date_trunc('day', now() AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring})",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Body Battery charged per day",
@@ -583,8 +601,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -679,45 +697,16 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "alias": "Heart Rate",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "HeartRateIntraday",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "HeartRate"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"HeartRate\") AS \"Heart Rate\"\nFROM garmin.\"HeartRateIntraday\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         }
       ],
       "title": "Heart Rate",
@@ -766,8 +755,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -902,133 +891,52 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "alias": "Heart rate histogram",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "HeartRate_Intraday",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select mean_value from (SELECT mean(\"HeartRate\") as mean_value FROM \"HeartRateIntraday\" WHERE $timeFilter GROUP BY time(1m) fill(null)) where mean_value <= 96",
-          "queryType": "randomWalk",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT mean_value AS \"Heart rate histogram\" FROM (SELECT avg(\"HeartRate\") AS mean_value FROM garmin.\"HeartRateIntraday\" WHERE $__timeFilter(time) GROUP BY time_bucket(interval '1 minute', time)) AS samples WHERE mean_value <= 96",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Heart rate histogram > 96",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [],
-          "hide": false,
-          "measurement": "HeartRate_Intraday",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select mean_value from (SELECT mean(\"HeartRate\") as mean_value FROM \"HeartRateIntraday\" WHERE $timeFilter GROUP BY time(1m) fill(null)) where mean_value > 96",
-          "queryType": "randomWalk",
-          "rawQuery": true,
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT mean_value AS \"Heart rate histogram > 96\" FROM (SELECT avg(\"HeartRate\") AS mean_value FROM garmin.\"HeartRateIntraday\" WHERE $__timeFilter(time) GROUP BY time_bucket(interval '1 minute', time)) AS samples WHERE mean_value > 96",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Heart rate histogram < 60",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [],
-          "hide": false,
-          "measurement": "HeartRate_Intraday",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select mean_value from (SELECT mean(\"HeartRate\") as mean_value FROM \"HeartRateIntraday\" WHERE $timeFilter GROUP BY time(1m) fill(null)) where mean_value < 60",
-          "queryType": "randomWalk",
-          "rawQuery": true,
           "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT mean_value AS \"Heart rate histogram < 60\" FROM (SELECT avg(\"HeartRate\") AS mean_value FROM garmin.\"HeartRateIntraday\" WHERE $__timeFilter(time) GROUP BY time_bucket(interval '1 minute', time)) AS samples WHERE mean_value < 60",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Heart rate histogram > 110",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [],
-          "hide": false,
-          "measurement": "HeartRate_Intraday",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "select mean_value from (SELECT mean(\"HeartRate\") as mean_value FROM \"HeartRateIntraday\" WHERE $timeFilter GROUP BY time(1m) fill(null)) where mean_value > 110",
-          "queryType": "randomWalk",
-          "rawQuery": true,
           "refId": "D",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT mean_value AS \"Heart rate histogram > 110\" FROM (SELECT avg(\"HeartRate\") AS mean_value FROM garmin.\"HeartRateIntraday\" WHERE $__timeFilter(time) GROUP BY time_bucket(interval '1 minute', time)) AS samples WHERE mean_value > 110",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Heart Rate Distribution",
@@ -1037,8 +945,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1140,46 +1048,16 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "alias": "BR",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "BreathingRateIntraday",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "BreathingRate"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"BreathingRate\") AS \"BR\"\nFROM garmin.\"BreathingRateIntraday\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         }
       ],
       "title": "Breathing Rates",
@@ -1238,8 +1116,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1398,40 +1276,40 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Avg SpO2",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "B",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"averageSpO2Value\") FROM \"SleepSummary\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"averageSpO2Value\") AS \"Avg SpO2\"\nFROM garmin.\"SleepSummary\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         },
         {
-          "alias": "Avg HRV",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "A",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"hrvValue\") FROM \"HRV_Intraday\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"hrvValue\") AS \"Avg HRV\"\nFROM garmin.\"HRV_Intraday\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         },
         {
-          "alias": "Avg Resting HR",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "D",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"restingHeartRate\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"restingHeartRate\") AS \"Avg Resting HR\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         }
       ],
       "title": "Resting heart rate, HRV, and SpO2",
@@ -1440,8 +1318,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1616,40 +1494,40 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Avg Breathing Rate",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "E",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"BreathingRate\") FROM \"BreathingRateIntraday\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"BreathingRate\") AS \"Avg Breathing Rate\"\nFROM garmin.\"BreathingRateIntraday\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         },
         {
-          "alias": "Avg Stress",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "A",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"stressLevel\") FROM \"StressIntraday\" WHERE (\"stressLevel\"::field >= 0) AND time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"stressLevel\") AS \"Avg Stress\"\nFROM garmin.\"StressIntraday\" WHERE (\"stressLevel\" >= 0) AND time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         },
         {
-          "alias": "Avg Sleeping Stress",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "C",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"avgSleepStress\") FROM \"SleepSummary\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"avgSleepStress\") AS \"Avg Sleeping Stress\"\nFROM garmin.\"SleepSummary\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         }
       ],
       "title": "Breathing and stress",
@@ -1671,8 +1549,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1780,93 +1658,28 @@
       "pluginVersion": "12.0.1",
       "targets": [
         {
-          "alias": "Stress",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "StressIntraday",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "stressLevel"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "stressLevel::field",
-              "operator": ">=",
-              "value": "0"
-            }
-          ]
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"stressLevel\") AS \"Stress\"\nFROM garmin.\"StressIntraday\"\nWHERE $__timeFilter(time) AND \"stressLevel\" >= 0\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         },
         {
-          "alias": "Body Battery",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "BodyBatteryIntraday",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "BodyBatteryLevel"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"BodyBatteryLevel\") AS \"Body Battery\"\nFROM garmin.\"BodyBatteryIntraday\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         }
       ],
       "title": "Stress",
@@ -1926,8 +1739,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2177,73 +1990,83 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Low Stress duration",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "D",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"lowStressDuration\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"lowStressDuration\") AS \"Low Stress duration\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Rest stress duration",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "B",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"restStressDuration\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"restStressDuration\") AS \"Rest stress duration\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Medium stress duration",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "C",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"mediumStressDuration\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"mediumStressDuration\") AS \"Medium stress duration\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Uncategorized stress duration",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "E",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"uncategorizedStressDuration\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"uncategorizedStressDuration\") AS \"Uncategorized stress duration\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "High stress duration",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
           "refId": "A",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"highStressDuration\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"highStressDuration\") AS \"High stress duration\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Stress overview",
       "type": "barchart",
-      "interval": "1d"
+      "interval": "1d",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "Time",
+            "mode": "outer"
+          }
+        }
+      ]
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2354,33 +2177,42 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Charged",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "D",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"bodyBatteryChargedValue\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"bodyBatteryChargedValue\") AS \"Charged\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Drained",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "C",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"bodyBatteryDrainedValue\") * -1 FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"bodyBatteryDrainedValue\") * -1 AS \"Drained\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Body Battery overview",
       "type": "barchart",
-      "interval": "1d"
+      "interval": "1d",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "Time",
+            "mode": "outer"
+          }
+        }
+      ]
     },
     {
       "collapsed": false,
@@ -2397,8 +2229,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "One bar for each night, colored by sleep stage. The Business Charts plugin draws it.",
       "fieldConfig": {
@@ -2445,14 +2277,16 @@
       "pluginVersion": "7.2.5",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"Day\", \"Clock\", \"Stage\" FROM \"SleepStage\" WHERE $timeFilter",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"Day\", \"Clock\", \"Stage\"\nFROM garmin.\"SleepStage\" WHERE $__timeFilter(time)\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Sleep stages by night",
@@ -2460,8 +2294,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2611,180 +2445,63 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Deep Sleep",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "SleepSummary",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "deepSleepSeconds"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"deepSleepSeconds\") AS \"Deep Sleep\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Light Sleep",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "SleepSummary",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "lightSleepSeconds"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"lightSleepSeconds\") AS \"Light Sleep\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "REM Sleep",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "SleepSummary",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "remSleepSeconds"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"remSleepSeconds\") AS \"REM Sleep\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Awake",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "SleepSummary",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "D",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "awakeSleepSeconds"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"awakeSleepSeconds\") AS \"Awake\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Sleep stage durations",
       "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "Time",
+            "mode": "outer"
+          }
+        },
         {
           "id": "filterByValue",
           "options": {
@@ -2807,8 +2524,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2892,47 +2609,16 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Sleep Score",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "SleepSummary",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "sleepScore"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"sleepScore\") AS \"Sleep Score\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Sleep Score",
@@ -2959,8 +2645,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -3075,184 +2761,52 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Deep",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "1d"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "SleepSummary",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT distinct(\"minutes_deep\") FROM \"sleep\" WHERE is_main_sleep = true AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "deepSleepSeconds"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"deepSleepSeconds\") AS \"Deep\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Light",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "1d"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "SleepSummary",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT distinct(\"minutes_deep\") FROM \"sleep\" WHERE is_main_sleep = true AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "lightSleepSeconds"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"lightSleepSeconds\") AS \"Light\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "REM",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "1d"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "SleepSummary",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT distinct(\"minutes_deep\") FROM \"sleep\" WHERE is_main_sleep = true AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "remSleepSeconds"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"remSleepSeconds\") AS \"REM\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Awake",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "1d"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "hide": false,
-          "measurement": "SleepSummary",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT distinct(\"minutes_deep\") FROM \"sleep\" WHERE is_main_sleep = true AND $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": false,
           "refId": "D",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "awakeSleepSeconds"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"awakeSleepSeconds\") AS \"Awake\"\nFROM garmin.\"SleepSummary\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Average Sleep trends",
@@ -3260,8 +2814,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "Restless moments and times awake for each night.",
       "fieldConfig": {
@@ -3369,14 +2923,16 @@
       "pluginVersion": "13.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "query": "SELECT \"restlessMomentsCount\" AS \"Restless moments\", \"awakeCount\" AS \"Times awake\" FROM \"SleepSummary\" WHERE $timeFilter",
-          "rawQuery": true,
           "refId": "A",
-          "resultFormat": "table"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time AS \"Time\", \"restlessMomentsCount\" AS \"Restless moments\", \"awakeCount\" AS \"Times awake\"\nFROM garmin.\"SleepSummary\" WHERE $__timeFilter(time)\nORDER BY time",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Restlessness",
@@ -3397,8 +2953,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -3482,15 +3038,16 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Steps",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
           "refId": "A",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"totalSteps\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"totalSteps\") AS \"Steps\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Daily Steps",
@@ -3499,8 +3056,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -3586,15 +3143,16 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Distance Covered",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
           "refId": "A",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"totalDistanceMeters\") / 1609.344 FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"totalDistanceMeters\") / 1609.344 AS \"Distance Covered\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Daily Distance",
@@ -3603,8 +3161,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -3718,31 +3276,39 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "BMR Calories",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "B",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"bmrKilocalories\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"bmrKilocalories\") AS \"BMR Calories\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Activity Calories",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
           "refId": "A",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"activeKilocalories\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"activeKilocalories\") AS \"Activity Calories\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Daily Calories",
       "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "Time",
+            "mode": "outer"
+          }
+        },
         {
           "id": "filterByValue",
           "options": {
@@ -3765,8 +3331,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -3881,37 +3447,47 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Moderate Intensity",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
           "refId": "A",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"moderateIntensityMinutes\") * 60 FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"moderateIntensityMinutes\") * 60 AS \"Moderate Intensity\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Vigorous Intensity",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "B",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"vigorousIntensityMinutes\") * 60 FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"vigorousIntensityMinutes\") * 60 AS \"Vigorous Intensity\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Daily Intensity Minutes",
       "type": "barchart",
-      "interval": "1d"
+      "interval": "1d",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "Time",
+            "mode": "outer"
+          }
+        }
+      ]
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "description": "",
       "fieldConfig": {
@@ -4031,52 +3607,52 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Sedentary",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "A",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"sedentarySeconds\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time(1d) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"sedentarySeconds\") AS \"Sedentary\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Intense Activity",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "B",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"highlyActiveSeconds\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time(1d) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"highlyActiveSeconds\") AS \"Intense Activity\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Fair Activity",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "C",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"activeSeconds\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time(1d) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"activeSeconds\") AS \"Fair Activity\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         },
         {
-          "alias": "Sleeping",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "D",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"sleepingSeconds\") FROM \"DailyStats\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time(1d) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(interval '1 day', time, ${TimeZone:sqlstring}) AS \"Time\", avg(\"sleepingSeconds\") AS \"Sleeping\"\nFROM garmin.\"DailyStats\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "table",
+          "hide": false
         }
       ],
       "title": "Avg Activity over given duration",
@@ -4097,8 +3673,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -4242,16 +3818,16 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "VO2 Max",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "hide": false,
           "refId": "B",
-          "resultFormat": "time_series",
-          "query": "SELECT mean(\"VO2_max_value\") FROM \"VO2_Max\" WHERE time >= ${__from}ms - 1d AND time <= ${__to}ms GROUP BY time($__interval) fill(none) tz('$TimeZone')",
-          "rawQuery": true
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"VO2_max_value\") AS \"VO2 Max\"\nFROM garmin.\"VO2_Max\" WHERE time >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND time <= $__timeTo()::timestamptz\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         }
       ],
       "title": "VO2 Max",
@@ -4260,8 +3836,8 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
-        "uid": "garmin_influxdb"
+        "type": "grafana-postgresql-datasource",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -4380,52 +3956,16 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "alias": "Weight in lbs",
-          "datasource": {
-            "type": "influxdb",
-            "uid": "garmin_influxdb"
-          },
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "BodyComposition",
-          "orderByTime": "ASC",
-          "policy": "default",
           "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "weight"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              },
-              {
-                "params": [
-                  "/ 453.59237"
-                ],
-                "type": "math"
-              }
-            ]
-          ],
-          "tags": [],
-          "tz": "$TimeZone"
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), time, ${TimeZone:sqlstring}) AS time, avg(\"weight\") / 453.59237 AS \"Weight in lbs\"\nFROM garmin.\"BodyComposition\"\nWHERE $__timeFilter(time)\nGROUP BY 1 ORDER BY 1",
+          "format": "time_series",
+          "hide": false
         }
       ],
       "title": "Weight",
@@ -4440,6 +3980,15 @@
   ],
   "templating": {
     "list": [
+      {
+        "name": "Datasource",
+        "label": "Datasource",
+        "type": "datasource",
+        "query": "grafana-postgresql-datasource",
+        "current": {},
+        "options": [],
+        "refresh": 1
+      },
       {
         "current": {
           "text": "America/Chicago",
