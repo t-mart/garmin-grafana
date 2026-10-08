@@ -49,7 +49,7 @@ class ProjectionTests(unittest.TestCase):
         )
         self.assertEqual(tables["stressValuesArray"], [])
 
-    def test_fit_keeps_zero_coordinates_and_speed(self) -> None:
+    def test_fit_keeps_zero_coordinates_and_laps_with_one_timestamp(self) -> None:
         definition = bytes([0x40, 0, 0]) + struct.pack("<H", 20) + bytes([5])
         definition += bytes(
             [253, 4, 0x86, 0, 4, 0x85, 1, 4, 0x85, 6, 2, 0x84, 73, 4, 0x86]
@@ -57,13 +57,17 @@ class ProjectionTests(unittest.TestCase):
         data = (
             definition + bytes([0]) + struct.pack("<IiiHI", 1000000000, 0, 0, 1000, 0)
         )
+        data += bytes([0x41, 0, 0]) + struct.pack("<H", 19) + bytes([2])
+        data += bytes([253, 4, 0x86, 254, 2, 0x84])
+        for index in range(2):
+            data += bytes([1]) + struct.pack("<IH", 1000000000, index)
         content = struct.pack("<BBHI4s", 12, 0x10, 2100, len(data), b".FIT") + data
         content += struct.pack("<H", compute_crc(content))
-        records = next(
-            rows for rows in fit("123", content) if rows.table == "fit_record"
-        )
+        tables = {rows.table: rows for rows in fit("123", content)}
+        records = tables["fit_record"]
         self.assertEqual(records.key, {"activityId": 123})
         self.assertEqual(len(records.rows), 1)
         self.assertEqual(records.rows[0]["position_lat"], 0)
         self.assertEqual(records.rows[0]["position_long"], 0)
         self.assertEqual(records.rows[0]["enhanced_speed"], 0)
+        self.assertEqual(len(tables["fit_lap"].rows), 2)

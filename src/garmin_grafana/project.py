@@ -1,7 +1,6 @@
 import io
 import zipfile
 from collections.abc import Callable, Iterable
-from datetime import datetime
 from typing import Any
 
 import fitdecode
@@ -25,7 +24,12 @@ SLEEP_ARRAYS = (
     "wellnessEpochSPO2DataDTOList",
     "wellnessEpochRespirationAveragesList",
 )
-FIT_MESSAGES = ("record", "lap", "session", "length")
+FIT_MESSAGES = {
+    "record": "timestamp",
+    "lap": "message_index",
+    "session": "message_index",
+    "length": "message_index",
+}
 
 
 def rows(table: str, key: Fields, values: Iterable[Fields]) -> Rows:
@@ -317,7 +321,7 @@ def fit_files(content: bytes) -> list[bytes]:
 
 
 def fit(activity_id: str, content: bytes) -> list[Rows]:
-    messages: dict[str, dict[datetime, Fields]] = {name: {} for name in FIT_MESSAGES}
+    messages: dict[str, dict[Any, Fields]] = {name: {} for name in FIT_MESSAGES}
     for file in fit_files(content):
         with fitdecode.FitReader(
             io.BytesIO(file), error_handling=fitdecode.ErrorHandling.RAISE
@@ -333,10 +337,9 @@ def fit(activity_id: str, content: bytes) -> list[Rows]:
                     if not field.name.startswith("unknown")
                     and not isinstance(field.value, tuple | list)
                 }
-                if fields.get("timestamp") is not None:
-                    messages[frame.name].setdefault(fields["timestamp"], {}).update(
-                        fields
-                    )
+                identity = fields.get(FIT_MESSAGES[frame.name])
+                if identity is not None:
+                    messages[frame.name].setdefault(identity, {}).update(fields)
     key = {"activityId": int(activity_id)}
     return [
         rows(f"fit_{name}", key, values.values()) for name, values in messages.items()

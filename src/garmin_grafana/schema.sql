@@ -652,7 +652,7 @@ CREATE TABLE IF NOT EXISTS garmin.fit_lap (
     max_power integer,
     max_running_cadence integer,
     max_temperature integer,
-    message_index integer,
+    message_index integer NOT NULL,
     min_temperature integer,
     normalized_power integer,
     sport text,
@@ -660,7 +660,7 @@ CREATE TABLE IF NOT EXISTS garmin.fit_lap (
     start_position_long integer,
     start_time timestamptz,
     sub_sport text,
-    "timestamp" timestamptz NOT NULL,
+    "timestamp" timestamptz,
     total_ascent integer,
     total_calories integer,
     total_descent integer,
@@ -670,7 +670,7 @@ CREATE TABLE IF NOT EXISTS garmin.fit_lap (
     total_timer_time double precision,
     total_work integer,
     wkt_step_index integer,
-    PRIMARY KEY ("activityId", "timestamp")
+    PRIMARY KEY ("activityId", message_index)
 );
 CREATE TABLE IF NOT EXISTS garmin.fit_length (
     "activityId" bigint NOT NULL,
@@ -679,14 +679,14 @@ CREATE TABLE IF NOT EXISTS garmin.fit_length (
     event text,
     event_type text,
     length_type text,
-    message_index integer,
+    message_index integer NOT NULL,
     start_time timestamptz,
     swim_stroke text,
-    "timestamp" timestamptz NOT NULL,
+    "timestamp" timestamptz,
     total_elapsed_time double precision,
     total_strokes integer,
     total_timer_time double precision,
-    PRIMARY KEY ("activityId", "timestamp")
+    PRIMARY KEY ("activityId", message_index)
 );
 CREATE TABLE IF NOT EXISTS garmin.fit_record (
     "activityId" bigint NOT NULL,
@@ -734,7 +734,7 @@ CREATE TABLE IF NOT EXISTS garmin.fit_session (
     max_power integer,
     max_running_cadence integer,
     max_temperature integer,
-    message_index integer,
+    message_index integer NOT NULL,
     min_temperature integer,
     nec_lat integer,
     nec_long integer,
@@ -748,7 +748,7 @@ CREATE TABLE IF NOT EXISTS garmin.fit_session (
     sub_sport text,
     swc_lat integer,
     swc_long integer,
-    "timestamp" timestamptz NOT NULL,
+    "timestamp" timestamptz,
     total_anaerobic_training_effect double precision,
     total_ascent integer,
     total_calories integer,
@@ -762,5 +762,5 @@ CREATE TABLE IF NOT EXISTS garmin.fit_session (
     trigger text,
     workout_feel integer,
     workout_rpe integer,
-    PRIMARY KEY ("activityId", "timestamp")
+    PRIMARY KEY ("activityId", message_index)
 );
