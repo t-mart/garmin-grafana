@@ -33,6 +33,8 @@ Set these environment variables in `.env.local` or the container environment:
 | `TOKEN_DIR` | Persistent Garmin token directory | `.local/tokens`; `/data/tokens` in Docker |
 | `UPDATE_INTERVAL_SECONDS` | Delay between collection cycles | `300` |
 | `RATE_LIMIT_CALLS_SECONDS` | Delay before each Garmin request | `5` |
+| `METRICS_HOST` | Prometheus listener address | `0.0.0.0` |
+| `METRICS_PORT` | Prometheus listener port; `0` disables metrics | `9000` |
 | `FETCH_SELECTION` | Comma-separated data categories | See `collector.py` |
 
 The default categories match the upstream collector. Additional categories include training status, training readiness, hill score, endurance score, blood pressure, hydration, and lactate threshold.
@@ -66,6 +68,38 @@ Use `--once` for one cycle. Use `--force` to download unchanged activities again
 
 The collector archives all returned Garmin fields. It cannot retrieve data that Garmin no longer exposes through its APIs.
 
+
+## Metrics
+
+The daemon exposes Prometheus metrics at `http://<collector>:9000/metrics`.
+Commands with `--once` or date bounds do not start the listener.
+Publish port 9000 for Docker, or expose it through a Kubernetes Service for Prometheus.
+The endpoint has no authentication. Restrict access to your internal network.
+
+| Metric | Meaning |
+| --- | --- |
+| `garmin_fetches_total{endpoint,result}` | API calls after client retries; results: `success`, `error`, `empty` |
+| `garmin_collection_cycles_total{result}` | Complete cycles; results: `success`, `error` |
+| `garmin_last_collection_success_timestamp_seconds` | Last successful cycle; zero until the first success |
+| `garmin_collection_in_progress` | One during a cycle; otherwise zero |
+
+HTTP 204/404 exceptions count as `empty`, not errors.
+A cycle succeeds after all selected Garmin data, database writes, and derivations succeed.
+Optional weather failures increment the fetch error counter but do not fail the cycle.
+Metrics reset on process restart. Prometheus also receives standard Python and process metrics.
+
+Use these PromQL expressions for alerts. Replace the job name with your scrape job name.
+
+```promql
+sum by (instance, endpoint) (increase(garmin_fetches_total{job="garmin-grafana",result="error"}[15m])) > 0
+increase(garmin_collection_cycles_total{job="garmin-grafana",result="error"}[15m]) > 0
+time() - garmin_last_collection_success_timestamp_seconds{job="garmin-grafana"} > 1800
+up{job="garmin-grafana"} == 0
+```
+
+Set `for: 30m` on the stale-cycle alert to allow initial collection time.
+Adjust that threshold for longer cycles or a larger `UPDATE_INTERVAL_SECONDS`.
+Use the `up` alert to detect process exits, including authentication and startup failures.
 
 ## Development
 

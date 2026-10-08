@@ -31,5 +31,6 @@ WORKDIR /app
 COPY --from=build /app/.venv /app/.venv
 COPY LICENSE /app/LICENSE
 USER app
+EXPOSE 9000
 ENTRYPOINT ["garmin-grafana"]
 CMD ["sync"]

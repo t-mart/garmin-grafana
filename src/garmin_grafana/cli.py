@@ -2,12 +2,14 @@ import argparse
 import logging
 import os
 import signal
+from contextlib import nullcontext
 from datetime import date, datetime, timedelta
 from threading import Event
 from zoneinfo import ZoneInfo
 
 from .collector import DEFAULT_SELECTION, ENDPOINTS, Collector, collect_weather, login
 from .derive import DISTANCES, derive
+from .metrics import observe_cycle, serve
 from .storage import Store, connect
 
 
@@ -81,19 +83,16 @@ def run(args: argparse.Namespace) -> None:
             )
             if start > end:
                 raise ValueError("The start date must not follow the end date.")
-            complete = True
-            if not args.start and not args.end:
-                store.set_state("pending-start", start.isoformat())
-            collector.device_sync()
-            day = end
-            while day >= start and not stop.is_set():
-                complete = collector.day(day, selection) and complete
-                day -= timedelta(days=1)
-            derive(store, DISTANCES, zone)
-            collect_weather(store)
-            if complete and not stop.is_set() and not args.start and not args.end:
-                store.set_state("last-success", today.isoformat())
-                store.set_state("pending-start", None)
+            complete = observe_cycle(
+                lambda start=start, end=end: collect_cycle(
+                    store,
+                    collector,
+                    start,
+                    end,
+                    selection,
+                    not args.start and not args.end,
+                )
+            )
             if args.once or args.start or args.end:
                 if not complete:
                     raise RuntimeError(
@@ -103,6 +102,34 @@ def run(args: argparse.Namespace) -> None:
             stop.wait(interval)
 
 
+def collect_cycle(
+    store: Store,
+    collector: Collector,
+    start: date,
+    end: date,
+    selection: set[str],
+    automatic: bool,
+) -> bool:
+    if automatic:
+        store.set_state("pending-start", start.isoformat())
+    collector.device_sync()
+    complete = True
+    day = end
+    while day >= start and not collector.stop.is_set():
+        complete = collector.day(day, selection) and complete
+        day -= timedelta(days=1)
+    if collector.stop.is_set():
+        raise InterruptedError("Collection stopped.")
+    derive(store, DISTANCES, collector.zone)
+    collect_weather(store)
+    if collector.stop.is_set():
+        raise InterruptedError("Collection stopped.")
+    if complete and automatic:
+        store.set_state("last-success", end.isoformat())
+        store.set_state("pending-start", None)
+    return complete
+
+
 def main() -> None:
     logging.basicConfig(
         level=os.getenv("LOG_LEVEL", "INFO"),
@@ -110,7 +137,12 @@ def main() -> None:
     )
     logging.getLogger("httpx2").setLevel(logging.WARNING)
     try:
-        run(parser().parse_args())
+        args = parser().parse_args()
+        daemon = args.command == "sync" and not (args.once or args.start or args.end)
+        with serve() if daemon else nullcontext():
+            run(args)
+    except InterruptedError:
+        return
     except (ValueError, RuntimeError) as error:
         logging.error("%s", error)
         raise SystemExit(1) from None

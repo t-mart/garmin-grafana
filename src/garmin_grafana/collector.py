@@ -21,6 +21,7 @@ from garminconnect import (
 
 from .activity import fit_samples, summary_sample, tcx_samples
 from .derive import compass, parse_weather, weather_url
+from .metrics import FETCHES
 from .normalize import daily_samples
 from .storage import Fields, Sample, Store, digest, timestamp
 
@@ -68,7 +69,7 @@ def login() -> Garmin:
     )
     token_dir = Path(os.getenv("TOKEN_DIR", ".local/tokens")).expanduser()
     token_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
-    client.login(str(token_dir))
+    request("login", lambda: client.login(str(token_dir)))
     return client
 
 
@@ -80,6 +81,21 @@ def status_code(error: Exception) -> int | None:
         return status_code(error.__cause__)
     match = re.search(r"(?:API Error|Error|HTTP)\s*(\d{3})", str(error))
     return int(match[1]) if match else None
+
+
+def request[T](endpoint: str, action: Callable[[], T]) -> T:
+    for result in ("success", "error", "empty"):
+        FETCHES.labels(endpoint, result)
+    try:
+        value = action()
+    except InterruptedError:
+        raise
+    except Exception as error:
+        result = "empty" if status_code(error) in {204, 404} else "error"
+        FETCHES.labels(endpoint, result).inc()
+        raise
+    FETCHES.labels(endpoint, "success").inc()
+    return value
 
 
 class Collector:
@@ -103,7 +119,7 @@ class Collector:
         if self.stop.wait(self.delay):
             raise InterruptedError("Collection stopped.")
         function: Callable[..., Any] = getattr(self.client, method)
-        payload = function(*args, **kwargs)
+        payload = request(method, lambda: function(*args, **kwargs))
         key = digest([args, kwargs])
         self.store.archive(
             method, key, {"args": args, "kwargs": kwargs, "data": payload}
@@ -199,7 +215,10 @@ class Collector:
         if self.stop.wait(self.delay):
             raise InterruptedError("Collection stopped.")
         try:
-            return self.client.download_activity(activity_id, dl_fmt=format)
+            return request(
+                f"download_activity_{format.name.lower()}",
+                lambda: self.client.download_activity(activity_id, dl_fmt=format),
+            )
         except Exception as error:
             if status_code(error) in {204, 404}:
                 return b""
@@ -249,9 +268,10 @@ def collect_weather(store: Store) -> None:
                 int(summary.time.timestamp()),
             )
             try:
-                response = client.get(url)
-                response.raise_for_status()
-                payload = response.json()
+                payload = request(
+                    "open_meteo",
+                    lambda url=url: client.get(url).raise_for_status().json(),
+                )
                 store.archive(
                     "open-meteo", summary.entity, {"url": url, "data": payload}
                 )
