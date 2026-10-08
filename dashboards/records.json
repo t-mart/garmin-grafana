@@ -50,7 +50,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -112,7 +112,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -152,7 +152,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "description": "Each dot is the fastest stretch of this distance inside one run. The line is the record at each date. Large dots set a new record.",
       "fieldConfig": {
@@ -372,7 +372,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -388,7 +388,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -536,7 +536,7 @@
           "refId": "B",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -548,7 +548,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -560,7 +560,7 @@
           "refId": "C",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -572,7 +572,7 @@
           "refId": "D",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -600,7 +600,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -655,7 +655,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -701,15 +701,6 @@
   "templating": {
     "list": [
       {
-        "name": "Datasource",
-        "label": "Datasource",
-        "type": "datasource",
-        "query": "grafana-postgresql-datasource",
-        "current": {},
-        "options": [],
-        "refresh": 1
-      },
-      {
         "current": {
           "text": [
             "All"
@@ -727,7 +718,7 @@
         "type": "query",
         "datasource": {
           "type": "grafana-postgresql-datasource",
-          "uid": "${Datasource}"
+          "uid": "garmin_timescaledb"
         },
         "definition": "SELECT DISTINCT \"Distance\" AS __text, \"Distance\" AS __value, \"Meters\" FROM garmin.\"BestEffort\" ORDER BY \"Meters\"",
         "refresh": 1

@@ -6,9 +6,9 @@
 | `health.json` | Health | `/d/garmin-health` |
 | `records.json` | Records | `/d/garmin-records` |
 
-Add a PostgreSQL datasource in Grafana with the Garmin database and a reader role.
-Enable its TimescaleDB option. Import the JSON files, then select that datasource in each dashboard's Datasource variable.
-Grafana resolves the selection to a datasource UID. The dashboard does not contain database credentials or require a particular datasource name.
+The dashboards use the provisioned PostgreSQL datasource with UID `garmin_timescaledb` and name `garmin-timescaledb`.
+The UID connects each dashboard to the datasource. Its provisioned configuration supplies the database credentials and TimescaleDB option.
+Import the JSON files without a datasource selector.
 
 Activities shows the selected activity, independent of the dashboard time range.
 Its variable uses SQL `__text` and `__value` columns for the label and activity ID.

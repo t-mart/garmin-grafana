@@ -49,7 +49,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -92,7 +92,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -107,7 +107,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -150,7 +150,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -165,7 +165,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -208,7 +208,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -223,7 +223,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -266,7 +266,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -281,7 +281,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -324,7 +324,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -339,7 +339,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -382,7 +382,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -397,7 +397,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -440,7 +440,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -455,7 +455,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -498,7 +498,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -513,7 +513,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -556,7 +556,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -572,7 +572,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -615,7 +615,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -631,7 +631,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -674,7 +674,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -690,7 +690,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -733,7 +733,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -749,7 +749,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -879,7 +879,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -895,7 +895,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -1041,7 +1041,7 @@
           "refId": "I",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1053,7 +1053,7 @@
           "refId": "J",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1065,7 +1065,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1077,7 +1077,7 @@
           "refId": "B",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1101,7 +1101,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -1294,7 +1294,7 @@
           "refId": "I",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1306,7 +1306,7 @@
           "refId": "J",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1318,7 +1318,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1330,7 +1330,7 @@
           "refId": "B",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1342,7 +1342,7 @@
           "refId": "Z",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1423,7 +1423,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "description": "The line color shows the heart rate zone. The zone limits come from the activity.",
       "fieldConfig": {
@@ -1489,7 +1489,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1501,7 +1501,7 @@
           "refId": "B",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1583,7 +1583,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -1665,7 +1665,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1677,7 +1677,7 @@
           "refId": "B",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1710,7 +1710,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -1801,7 +1801,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1826,7 +1826,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -1893,7 +1893,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -1918,7 +1918,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -1985,7 +1985,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -2010,7 +2010,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -2101,7 +2101,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -2126,7 +2126,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -2217,7 +2217,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -2242,7 +2242,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -2333,7 +2333,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -2358,7 +2358,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -2479,7 +2479,7 @@
           "refId": "B",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -2491,7 +2491,7 @@
           "refId": "C",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -2503,7 +2503,7 @@
           "refId": "D",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -2538,7 +2538,7 @@
     {
       "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "${Datasource}"
+        "uid": "garmin_timescaledb"
       },
       "fieldConfig": {
         "defaults": {
@@ -2664,7 +2664,7 @@
           "refId": "A",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -2676,7 +2676,7 @@
           "refId": "B",
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "${Datasource}"
+            "uid": "garmin_timescaledb"
           },
           "editorMode": "code",
           "rawQuery": true,
@@ -2704,19 +2704,10 @@
   "templating": {
     "list": [
       {
-        "name": "Datasource",
-        "label": "Datasource",
-        "type": "datasource",
-        "query": "grafana-postgresql-datasource",
-        "current": {},
-        "options": [],
-        "refresh": 1
-      },
-      {
         "current": {},
         "datasource": {
           "type": "grafana-postgresql-datasource",
-          "uid": "${Datasource}"
+          "uid": "garmin_timescaledb"
         },
         "definition": "SELECT \"Label\" AS __text, \"ActivityID\" AS __value FROM garmin.\"ActivityIndex\" ORDER BY time DESC",
         "label": "Activity",
