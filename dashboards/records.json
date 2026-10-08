@@ -1,0 +1,1155 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [
+        "garmin"
+      ],
+      "targetBlank": false,
+      "title": "Garmin",
+      "type": "dashboards"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "panels": [],
+      "title": "Running",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "garmin_influxdb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "custom": {}
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__data.fields.Distance} on ${__data.fields.Date}"
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Show this run",
+                    "url": "/d/garmin-activities?var-Activity=${__data.fields.ActivityID}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/__data\\.fields\\.Distance/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "garmin_influxdb"
+          },
+          "query": "SELECT BOTTOM(\"Seconds\", 1) AS \"Seconds\", \"Duration\", \"Date\", \"Meters\", \"ActivityID\" FROM \"BestEffort\" GROUP BY \"Distance\"",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        }
+      ],
+      "title": "Current records",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Meters"
+              }
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Meters": true
+            }
+          }
+        }
+      ],
+      "type": "stat",
+      "pluginVersion": "13.0.2"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "garmin_influxdb"
+      },
+      "description": "Each dot is the fastest stretch of this distance inside one run. The line is the record at each date. Large dots set a new record.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "axisPlacement": "auto",
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 3,
+            "pointShape": "circle",
+            "pointSize": {
+              "fixed": 5,
+              "max": 11,
+              "min": 5
+            },
+            "pointStrokeWidth": 1,
+            "show": "points"
+          },
+          "unit": "dthms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Effort"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": true,
+                  "viz": false
+                }
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "oneClick": true,
+                    "title": "Show this run",
+                    "url": "/d/garmin-activities?var-Activity=${__data.fields.ActivityID}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Record at the time"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.show",
+                "value": "lines"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "New record"
+            },
+            "properties": [
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "index": 1,
+                        "text": "No"
+                      },
+                      "1": {
+                        "index": 0,
+                        "text": "Yes"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ActivityID"
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": true
+                }
+              },
+              {
+                "id": "unit",
+                "value": "string"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 6
+      },
+      "id": 3,
+      "maxPerRow": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mapping": "manual",
+        "series": [
+          {
+            "frame": {
+              "matcher": {
+                "id": "byIndex",
+                "options": 0
+              }
+            },
+            "name": {
+              "fixed": "Runs"
+            },
+            "size": {
+              "matcher": {
+                "id": "byName",
+                "options": "New record"
+              }
+            },
+            "x": {
+              "matcher": {
+                "id": "byName",
+                "options": "Time"
+              }
+            },
+            "y": {
+              "matcher": {
+                "id": "byName",
+                "options": "Effort"
+              }
+            }
+          },
+          {
+            "frame": {
+              "matcher": {
+                "id": "byIndex",
+                "options": 0
+              }
+            },
+            "name": {
+              "fixed": "Record"
+            },
+            "x": {
+              "matcher": {
+                "id": "byName",
+                "options": "Time"
+              }
+            },
+            "y": {
+              "matcher": {
+                "id": "byName",
+                "options": "Record at the time"
+              }
+            }
+          }
+        ],
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "repeat": "Distance",
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "garmin_influxdb"
+          },
+          "query": "SELECT \"Seconds\" AS \"Effort\", \"Best\" AS \"Record at the time\", \"Record\" AS \"New record\", \"Duration\", \"Pace\", \"ActivityName\" AS \"Run\", \"ActivityID\" FROM \"BestEffort\" WHERE \"Distance\" =~ /^$Distance$/",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        }
+      ],
+      "title": "$Distance",
+      "type": "xychart",
+      "pluginVersion": "13.0.2"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "garmin_influxdb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 3,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": 259200000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "super-light-red"
+              }
+            ]
+          },
+          "unit": "dthms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Full Marathon"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Half Marathon"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time 5K"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time 10K"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 63,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "alias": "Time 5K",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "garmin_influxdb"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "RacePredictions",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "time5K"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "tz": "$TimeZone"
+        },
+        {
+          "alias": "Time 10K",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "garmin_influxdb"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "RacePredictions",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "time10K"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "tz": "$TimeZone"
+        },
+        {
+          "alias": "Half Marathon",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "garmin_influxdb"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "RacePredictions",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "timeHalfMarathon"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "tz": "$TimeZone"
+        },
+        {
+          "alias": "Full Marathon",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "garmin_influxdb"
+          },
+          "groupBy": [
+            {
+              "params": [
+                "1d"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "hide": false,
+          "measurement": "RacePredictions",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "D",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "timeMarathon"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [],
+          "tz": "$TimeZone"
+        }
+      ],
+      "title": "Race Predictions",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 4,
+      "panels": [],
+      "title": "Steps",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "garmin_influxdb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "unit": "locale",
+          "custom": {}
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Steps"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__data.fields.Title}"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "garmin_influxdb"
+          },
+          "query": "SELECT \"Steps\", \"Title\", \"Order\" FROM \"StepRecord\"",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "table"
+        }
+      ],
+      "title": "Most steps",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Order"
+              }
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Order": true
+            }
+          }
+        }
+      ],
+      "type": "stat",
+      "pluginVersion": "13.0.2"
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 41,
+  "tags": [
+    "garmin"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "includeAll": true,
+        "label": "Distance",
+        "multi": true,
+        "name": "Distance",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "0.5 km",
+            "value": "0.5 km"
+          },
+          {
+            "selected": false,
+            "text": "1 km",
+            "value": "1 km"
+          },
+          {
+            "selected": false,
+            "text": "1 mi",
+            "value": "1 mi"
+          },
+          {
+            "selected": false,
+            "text": "2 mi",
+            "value": "2 mi"
+          },
+          {
+            "selected": false,
+            "text": "5 km",
+            "value": "5 km"
+          },
+          {
+            "selected": false,
+            "text": "5 mi",
+            "value": "5 mi"
+          },
+          {
+            "selected": false,
+            "text": "10 km",
+            "value": "10 km"
+          }
+        ],
+        "query": "0.5 km,1 km,1 mi,2 mi,5 km,5 mi,10 km",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "America/Chicago",
+          "value": "America/Chicago"
+        },
+        "description": "Your local time zone for grouping stats",
+        "label": "Local Time Zone",
+        "name": "TimeZone",
+        "options": [
+          {
+            "selected": false,
+            "text": "Europe/London",
+            "value": "Europe/London"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Paris",
+            "value": "Europe/Paris"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Berlin",
+            "value": "Europe/Berlin"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Madrid",
+            "value": "Europe/Madrid"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Rome",
+            "value": "Europe/Rome"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Amsterdam",
+            "value": "Europe/Amsterdam"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Brussels",
+            "value": "Europe/Brussels"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Zurich",
+            "value": "Europe/Zurich"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Stockholm",
+            "value": "Europe/Stockholm"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Warsaw",
+            "value": "Europe/Warsaw"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Budapest",
+            "value": "Europe/Budapest"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Istanbul",
+            "value": "Europe/Istanbul"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Athens",
+            "value": "Europe/Athens"
+          },
+          {
+            "selected": false,
+            "text": "Europe/Moscow",
+            "value": "Europe/Moscow"
+          },
+          {
+            "selected": false,
+            "text": "America/New_York",
+            "value": "America/New_York"
+          },
+          {
+            "selected": true,
+            "text": "America/Chicago",
+            "value": "America/Chicago"
+          },
+          {
+            "selected": false,
+            "text": "America/Denver",
+            "value": "America/Denver"
+          },
+          {
+            "selected": false,
+            "text": "America/Los_Angeles",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "selected": false,
+            "text": "America/Toronto",
+            "value": "America/Toronto"
+          },
+          {
+            "selected": false,
+            "text": "America/Vancouver",
+            "value": "America/Vancouver"
+          },
+          {
+            "selected": false,
+            "text": "America/Mexico_City",
+            "value": "America/Mexico_City"
+          },
+          {
+            "selected": false,
+            "text": "America/Sao_Paulo",
+            "value": "America/Sao_Paulo"
+          },
+          {
+            "selected": false,
+            "text": "America/Buenos_Aires",
+            "value": "America/Buenos_Aires"
+          },
+          {
+            "selected": false,
+            "text": "America/Lima",
+            "value": "America/Lima"
+          },
+          {
+            "selected": false,
+            "text": "America/Bogota",
+            "value": "America/Bogota"
+          },
+          {
+            "selected": false,
+            "text": "Africa/Johannesburg",
+            "value": "Africa/Johannesburg"
+          },
+          {
+            "selected": false,
+            "text": "Africa/Cairo",
+            "value": "Africa/Cairo"
+          },
+          {
+            "selected": false,
+            "text": "Africa/Nairobi",
+            "value": "Africa/Nairobi"
+          },
+          {
+            "selected": false,
+            "text": "Africa/Lagos",
+            "value": "Africa/Lagos"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Tokyo",
+            "value": "Asia/Tokyo"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Seoul",
+            "value": "Asia/Seoul"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Shanghai",
+            "value": "Asia/Shanghai"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Singapore",
+            "value": "Asia/Singapore"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Kolkata",
+            "value": "Asia/Kolkata"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Bangkok",
+            "value": "Asia/Bangkok"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Dubai",
+            "value": "Asia/Dubai"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Hong_Kong",
+            "value": "Asia/Hong_Kong"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Kuala_Lumpur",
+            "value": "Asia/Kuala_Lumpur"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Jakarta",
+            "value": "Asia/Jakarta"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Manila",
+            "value": "Asia/Manila"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Taipei",
+            "value": "Asia/Taipei"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Karachi",
+            "value": "Asia/Karachi"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Colombo",
+            "value": "Asia/Colombo"
+          },
+          {
+            "selected": false,
+            "text": "Asia/Ho_Chi_Minh",
+            "value": "Asia/Ho_Chi_Minh"
+          },
+          {
+            "selected": false,
+            "text": "Australia/Sydney",
+            "value": "Australia/Sydney"
+          },
+          {
+            "selected": false,
+            "text": "Australia/Melbourne",
+            "value": "Australia/Melbourne"
+          },
+          {
+            "selected": false,
+            "text": "Australia/Brisbane",
+            "value": "Australia/Brisbane"
+          },
+          {
+            "selected": false,
+            "text": "Australia/Perth",
+            "value": "Australia/Perth"
+          },
+          {
+            "selected": false,
+            "text": "Pacific/Auckland",
+            "value": "Pacific/Auckland"
+          },
+          {
+            "selected": false,
+            "text": "Pacific/Honolulu",
+            "value": "Pacific/Honolulu"
+          }
+        ],
+        "query": "Europe/London, Europe/Paris, Europe/Berlin, Europe/Madrid, Europe/Rome, Europe/Amsterdam, Europe/Brussels, Europe/Zurich, Europe/Stockholm, Europe/Warsaw, Europe/Budapest, Europe/Istanbul, Europe/Athens, Europe/Moscow, America/New_York, America/Chicago, America/Denver, America/Los_Angeles, America/Toronto, America/Vancouver, America/Mexico_City, America/Sao_Paulo, America/Buenos_Aires, America/Lima, America/Bogota, Africa/Johannesburg, Africa/Cairo, Africa/Nairobi, Africa/Lagos, Asia/Tokyo, Asia/Seoul, Asia/Shanghai, Asia/Singapore, Asia/Kolkata, Asia/Bangkok, Asia/Dubai, Asia/Hong_Kong, Asia/Kuala_Lumpur, Asia/Jakarta, Asia/Manila, Asia/Taipei, Asia/Karachi, Asia/Colombo, Asia/Ho_Chi_Minh, Australia/Sydney, Australia/Melbourne, Australia/Brisbane, Australia/Perth, Pacific/Auckland, Pacific/Honolulu",
+        "type": "custom",
+        "hide": 2
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1y",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Records",
+  "uid": "garmin-records",
+  "version": 1,
+  "weekStart": ""
+}

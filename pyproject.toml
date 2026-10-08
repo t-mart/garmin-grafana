@@ -1,17 +1,28 @@
 [project]
-name = "garmin-grafana-timescaledb"
-version = "0.3.0"
-description = "A Python application to fetch Garmin health data and populate it in an InfluxDB Database, for visualizing long term health trends with Grafana"
+name = "garmin-grafana"
+version = "0.1.0"
+description = "Fetch Garmin data and visualize it in Grafana"
 readme = "README.md"
-requires-python = "==3.13.*"
+authors = [
+    { name = "Tim Martin", email = "tim@timmart.in" }
+]
+requires-python = ">=3.14"
 dependencies = [
-    "dotenv==0.9.9",
-    "fitparse==1.2.0",
-    "garminconnect==0.3.7",
-    "influxdb==5.3.2",
-    "influxdb3-python==0.12.0",
-    "pandas==2.2.3",
+    "fitdecode>=0.11.0",
+    "garminconnect>=0.3.17",
+    "httpx2>=2.13.1",
+    "psycopg[binary]>=3.3.6",
 ]
 
 [project.scripts]
-garmin-fetch = "garmin_grafana:main"
+garmin-grafana = "garmin_grafana:main"
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.10",
+    "ty>=0.0.85",
+]
