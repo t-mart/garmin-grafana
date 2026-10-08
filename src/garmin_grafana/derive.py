@@ -1,5 +1,3 @@
-import json
-import math
 import urllib.parse
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
@@ -46,6 +44,15 @@ class Distance:
     meters: float
 
 
+DISTANCES = (
+    Distance("1 km", 1000),
+    Distance("1 mi", METERS_PER_MILE),
+    Distance("5 km", 5000),
+    Distance("5 mi", 5 * METERS_PER_MILE),
+    Distance("10 km", 10000),
+)
+
+
 @dataclass(frozen=True)
 class Point:
     time: float
@@ -83,33 +90,6 @@ class Weather:
     humidity: float
     wind_speed: float
     wind_direction: float
-
-
-def load_distances(value: str | None) -> list[Distance]:
-    if not value:
-        raise ValueError("DISTANCES is empty.")
-    entries = json.loads(value)
-    if not isinstance(entries, list) or not entries:
-        raise ValueError("DISTANCES must contain a nonempty JSON list.")
-    distances = []
-    for number, entry in enumerate(entries, start=1):
-        if not isinstance(entry, dict) or set(entry) != {"label", "meters"}:
-            raise ValueError(f"Distance entry {number} must contain label and meters.")
-        label = entry["label"]
-        meters = entry["meters"]
-        if not isinstance(label, str) or not label:
-            raise ValueError(f"Distance label {number} must be nonempty text.")
-        if (
-            isinstance(meters, bool)
-            or not isinstance(meters, int | float)
-            or (not math.isfinite(meters))
-            or (meters <= 0)
-        ):
-            raise ValueError(f"Distance meters {number} must be a positive number.")
-        distances.append(Distance(label=label, meters=float(meters)))
-    if len({distance.label for distance in distances}) != len(distances):
-        raise ValueError("Distance labels must be unique.")
-    return distances
 
 
 def fastest_window(points: Sequence[Point], meters: float) -> Window | None:

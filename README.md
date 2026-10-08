@@ -66,21 +66,6 @@ Use `--once` for one cycle. Use `--force` to download unchanged activities again
 
 The collector archives all returned Garmin fields. It cannot retrieve data that Garmin no longer exposes through its APIs.
 
-## Record distances
-
-Edit `src/garmin_grafana/distances.json`, or supply a JSON file with `--distances`.
-`DISTANCES` also accepts the JSON list directly. Each entry has a `label` and a positive distance in `meters`.
-
-```sh
-uv run --env-file .env.local garmin-grafana derive --distances distances.json
-```
-
-This command recalculates changed records from local samples. It also retries absent activity weather.
-Best efforts use elapsed time between recorded samples, including pauses. GPS distance decreases do not create negative distances.
-The Records dashboard obtains its distance list from the database.
-
-Weather comes from [Open-Meteo](https://open-meteo.com), under CC BY 4.0.
-The collector sends each activity's start coordinates, rounded to two decimals, to Open-Meteo.
 
 ## Development
 

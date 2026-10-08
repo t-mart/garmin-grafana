@@ -7,10 +7,8 @@ from fitdecode.utils import compute_crc
 
 from garmin_grafana.activity import fit_samples, tcx_samples
 from garmin_grafana.derive import (
-    Distance,
     Point,
     fastest_window,
-    load_distances,
     step_records,
 )
 from garmin_grafana.normalize import daily_samples, sleep_samples
@@ -43,18 +41,6 @@ class DerivationTests(unittest.TestCase):
         assert window is not None
         self.assertEqual((window.seconds, window.meters), (40, 200))
         self.assertIsNone(fastest_window(points, 500))
-
-    def test_distances_reject_duplicate_labels_and_nonfinite_values(self) -> None:
-        for value in (
-            '[{"label":"x","meters":true}]',
-            '[{"label":"x","meters":NaN}]',
-            '[{"label":"x","meters":1},{"label":"x","meters":2}]',
-        ):
-            with self.assertRaises(ValueError):
-                load_distances(value)
-        self.assertEqual(
-            load_distances('[{"label":"1 km","meters":1000}]'), [Distance("1 km", 1000)]
-        )
 
     def test_step_weeks_start_on_monday_and_ties_keep_earliest(self) -> None:
         records = step_records(

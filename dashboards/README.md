@@ -14,7 +14,7 @@ Activities shows the selected activity, independent of the dashboard time range.
 Its variable uses SQL `__text` and `__value` columns for the label and activity ID.
 Health shows metrics within the time range. Daily averages include complete local days and exclude today.
 Records shows the fastest effort in each run and the record progression across imported history.
-Its Distance variable reads the configured distances that have recorded efforts.
+Its Distance variable reads the distances that have recorded efforts.
 
 The queries use views in the `garmin` schema. Distances, speeds, temperatures, and weights use imperial display units.
 Vertical oscillation uses centimeters. Stride length uses meters.
@@ -23,8 +23,5 @@ Raw Garmin values retain their original units in the archive.
 The Health sleep chart requires the Business Charts plugin (`volkovlabs-echarts-panel`).
 It uses five-minute stage samples and local clock times on a reference day.
 The collector timezone must match the dashboard timezone for this chart.
-
-Activity weather comes from [Open-Meteo](https://open-meteo.com) under CC BY 4.0.
-The collector uses the hour nearest to the activity start.
 
 Links between dashboards use the URLs above. If a dashboard UID changes, update those links.

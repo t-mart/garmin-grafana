@@ -3,13 +3,11 @@ import logging
 import os
 import signal
 from datetime import date, datetime, timedelta
-from importlib.resources import files
-from pathlib import Path
 from threading import Event
 from zoneinfo import ZoneInfo
 
 from .collector import DEFAULT_SELECTION, ENDPOINTS, Collector, collect_weather, login
-from .derive import derive, load_distances
+from .derive import DISTANCES, derive
 from .storage import Store, connect
 
 
@@ -33,9 +31,6 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument(
         "--force", action="store_true", help="Download unchanged activities again."
     )
-    result.add_argument(
-        "--distances", type=Path, help="Read record distances from this JSON file."
-    )
     return result
 
 
@@ -44,13 +39,6 @@ def run(args: argparse.Namespace) -> None:
         login()
         return
     zone = ZoneInfo(os.getenv("USER_TIMEZONE") or os.getenv("TZ") or "America/Chicago")
-    config = (
-        args.distances.read_text()
-        if args.distances
-        else os.getenv("DISTANCES")
-        or files("garmin_grafana").joinpath("distances.json").read_text()
-    )
-    distances = load_distances(config)
     selection = {
         value.strip()
         for value in os.getenv("FETCH_SELECTION", DEFAULT_SELECTION).split(",")
@@ -75,7 +63,7 @@ def run(args: argparse.Namespace) -> None:
         if not acquired or not acquired["acquired"]:
             raise ValueError("Another collector holds the database lock.")
         if args.command == "derive":
-            derive(store, distances, zone)
+            derive(store, DISTANCES, zone)
             collect_weather(store)
             return
         stop = Event()
@@ -101,7 +89,7 @@ def run(args: argparse.Namespace) -> None:
             while day >= start and not stop.is_set():
                 complete = collector.day(day, selection) and complete
                 day -= timedelta(days=1)
-            derive(store, distances, zone)
+            derive(store, DISTANCES, zone)
             collect_weather(store)
             if complete and not stop.is_set() and not args.start and not args.end:
                 store.set_state("last-success", today.isoformat())
