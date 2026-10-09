@@ -4,7 +4,6 @@
 | --- | --- | --- |
 | `activities.json` | Activities | `/d/garmin-activities` |
 | `day.json` | Day | `/d/garmin-day` |
-| `health.json` | Health | `/d/garmin-health` |
 | `records.json` | Records | `/d/garmin-records` |
 | `trends.json` | Trends | `/d/garmin-trends` |
 
