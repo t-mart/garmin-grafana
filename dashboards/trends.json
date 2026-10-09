@@ -920,7 +920,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1044,7 +1044,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1213,7 +1213,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1337,7 +1337,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1474,7 +1474,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 90,
             "gradientMode": "none",
@@ -1625,7 +1625,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 90,
             "gradientMode": "none",
@@ -1758,7 +1758,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 90,
             "gradientMode": "none",
@@ -1909,7 +1909,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 90,
             "gradientMode": "none",
@@ -1995,7 +1995,7 @@
       "id": 21,
       "gridPos": {
         "h": 7,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 45
       },
@@ -2015,7 +2015,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 90,
             "gradientMode": "none",
@@ -2059,100 +2059,13 @@
                   "fixedColor": "blue",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Restless moments"
               }
             ]
-          }
-        ]
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "min",
-            "max"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "garmin_timescaledb"
           },
-          "editorMode": "code",
-          "rawQuery": true,
-          "rawSql": "SELECT date_trunc(${Bucket:sqlstring}, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(\"restlessMomentsCount\") AS \"Restless moments\"\nFROM garmin.\"dailySleepData\"\nWHERE \"calendarDate\" >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
-          "format": "time_series"
-        }
-      ],
-      "title": "Restless moments",
-      "type": "timeseries"
-    },
-    {
-      "id": 22,
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 45
-      },
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "garmin_timescaledb"
-      },
-      "description": "Average per day in each bar. Group bars by sets the bar period.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 1,
-            "barWidthFactor": 0.8,
-            "fillOpacity": 90,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 0,
-            "pointSize": 6,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            },
-            "drawStyle": "bars"
-          },
-          "mappings": [],
-          "unit": "none",
-          "min": 0
-        },
-        "overrides": [
           {
             "matcher": {
               "id": "byName",
@@ -2162,9 +2075,37 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "blue",
+                  "fixedColor": "#FFB357",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "always"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Times awake"
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "decimals",
+                "value": 1
               }
             ]
           }
@@ -2196,15 +2137,15 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT date_trunc(${Bucket:sqlstring}, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(\"awakeCount\") AS \"Times awake\"\nFROM garmin.\"dailySleepDTO\"\nWHERE \"calendarDate\" >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT date_trunc(${Bucket:sqlstring}, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(\"restlessMomentsCount\") AS \"Restless moments\", avg(\"awakeCount\") AS \"Times awake\"\nFROM garmin.\"dailySleepDTO\" LEFT JOIN garmin.\"dailySleepData\" USING (\"calendarDate\")\nWHERE \"calendarDate\" >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         }
       ],
-      "title": "Times awake",
+      "title": "Restlessness",
       "type": "timeseries"
     },
     {
-      "id": 23,
+      "id": 22,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2217,10 +2158,10 @@
       "type": "row"
     },
     {
-      "id": 24,
+      "id": 23,
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 53
       },
@@ -2240,7 +2181,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 90,
             "gradientMode": "none",
@@ -2284,101 +2225,13 @@
                   "fixedColor": "blue",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Steps"
               }
             ]
-          }
-        ]
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "min",
-            "max"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "garmin_timescaledb"
           },
-          "editorMode": "code",
-          "rawQuery": true,
-          "rawSql": "SELECT date_trunc(${Bucket:sqlstring}, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(\"totalSteps\") AS \"Steps\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
-          "format": "time_series"
-        }
-      ],
-      "title": "Steps",
-      "type": "timeseries"
-    },
-    {
-      "id": 25,
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 53
-      },
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "garmin_timescaledb"
-      },
-      "description": "Average per day in each bar. Group bars by sets the bar period. Day totals exclude today.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 1,
-            "barWidthFactor": 0.8,
-            "fillOpacity": 90,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 0,
-            "pointSize": 6,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            },
-            "drawStyle": "bars"
-          },
-          "mappings": [],
-          "unit": "lengthmi",
-          "min": 0,
-          "decimals": 1
-        },
-        "overrides": [
           {
             "matcher": {
               "id": "byName",
@@ -2388,9 +2241,37 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "blue",
+                  "fixedColor": "#FF9830",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "always"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Distance"
+              },
+              {
+                "id": "unit",
+                "value": "lengthmi"
+              },
+              {
+                "id": "decimals",
+                "value": 1
               }
             ]
           }
@@ -2422,15 +2303,15 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT date_trunc(${Bucket:sqlstring}, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(\"totalDistanceMeters\" / 1609.344) AS \"Distance\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT date_trunc(${Bucket:sqlstring}, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(\"totalSteps\") AS \"Steps\", avg(\"totalDistanceMeters\" / 1609.344) AS \"Distance\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         }
       ],
-      "title": "Distance",
+      "title": "Steps and distance",
       "type": "timeseries"
     },
     {
-      "id": 26,
+      "id": 24,
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -2453,7 +2334,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 90,
             "gradientMode": "none",
@@ -2551,7 +2432,7 @@
       "type": "timeseries"
     },
     {
-      "id": 27,
+      "id": 25,
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -2574,7 +2455,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 90,
             "gradientMode": "none",
@@ -2672,7 +2553,7 @@
       "type": "timeseries"
     },
     {
-      "id": 28,
+      "id": 26,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2685,7 +2566,7 @@
       "type": "row"
     },
     {
-      "id": 29,
+      "id": 27,
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -2696,7 +2577,7 @@
         "type": "grafana-postgresql-datasource",
         "uid": "garmin_timescaledb"
       },
-      "description": "Garmin updates VO2 max after some activities. The line holds the last value.",
+      "description": "Garmin updates VO2 max after some activities.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2708,7 +2589,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -2718,7 +2599,7 @@
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "stepAfter",
+            "lineInterpolation": "smooth",
             "lineWidth": 2,
             "pointSize": 6,
             "scaleDistribution": {
@@ -2790,7 +2671,7 @@
       "type": "timeseries"
     },
     {
-      "id": 30,
+      "id": 28,
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -2813,7 +2694,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 1,
+            "barAlignment": 0,
             "barWidthFactor": 0.8,
             "fillOpacity": 0,
             "gradientMode": "none",

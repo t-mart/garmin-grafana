@@ -1773,7 +1773,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "text",
+            "mode": "fixed"
           },
           "custom": {
             "fillOpacity": 90,
@@ -1790,38 +1791,29 @@
             {
               "type": "value",
               "options": {
-                "0": {
+                "Deep": {
                   "color": "#1F60C4",
                   "index": 0,
                   "text": "Deep"
                 },
-                "1": {
+                "Light": {
                   "color": "#5794F2",
                   "index": 1,
                   "text": "Light"
                 },
-                "2": {
+                "REM": {
                   "color": "#F2A0D8",
                   "index": 2,
                   "text": "REM"
                 },
-                "3": {
+                "Awake": {
                   "color": "#FFB357",
                   "index": 3,
                   "text": "Awake"
                 }
               }
             }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "text",
-                "value": null
-              }
-            ]
-          }
+          ]
         },
         "overrides": []
       },
@@ -1850,8 +1842,8 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"startGMT\" AS time, \"activityLevel\" AS \"Stage\"\nFROM garmin.\"sleepLevels\"\nWHERE \"endGMT\" >= $__timeFrom()::timestamptz AND \"startGMT\" <= $__timeTo()::timestamptz\nUNION ALL\nSELECT l.\"endGMT\", NULL\nFROM garmin.\"sleepLevels\" l\nWHERE l.\"endGMT\" >= $__timeFrom()::timestamptz AND l.\"startGMT\" <= $__timeTo()::timestamptz AND NOT EXISTS (SELECT FROM garmin.\"sleepLevels\" n WHERE n.\"startGMT\" = l.\"endGMT\")\nORDER BY 1",
-          "format": "time_series"
+          "rawSql": "SELECT \"startGMT\" AS time, CASE \"activityLevel\" WHEN 0 THEN 'Deep' WHEN 1 THEN 'Light' WHEN 2 THEN 'REM' WHEN 3 THEN 'Awake' END AS \"Stage\"\nFROM garmin.\"sleepLevels\"\nWHERE \"endGMT\" >= $__timeFrom()::timestamptz AND \"startGMT\" <= $__timeTo()::timestamptz\nUNION ALL\nSELECT l.\"endGMT\", NULL\nFROM garmin.\"sleepLevels\" l\nWHERE l.\"endGMT\" >= $__timeFrom()::timestamptz AND l.\"startGMT\" <= $__timeTo()::timestamptz AND NOT EXISTS (SELECT FROM garmin.\"sleepLevels\" n WHERE n.\"startGMT\" = l.\"endGMT\")\nORDER BY 1",
+          "format": "table"
         }
       ],
       "title": "Sleep stages",
