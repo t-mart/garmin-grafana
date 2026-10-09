@@ -31,7 +31,7 @@ The queries read tables in the `garmin` schema. Distances, speeds, temperatures,
 Vertical oscillation uses centimeters. Stride length uses meters.
 The tables keep the Garmin and FIT units. The queries convert them.
 
-The Health sleep chart and the Activities pace chart require the Business Charts plugin (`volkovlabs-echarts-panel`).
-It samples the Garmin sleep levels every five minutes and shows local clock times on a reference day.
+The Health sleep chart, the Trends sleep schedule, and the Activities pace chart require the Business Charts plugin (`volkovlabs-echarts-panel`).
+The Health sleep chart samples the Garmin sleep levels every five minutes and shows local clock times on a reference day.
 
 Links between dashboards use the URLs above. If a dashboard UID changes, update those links.

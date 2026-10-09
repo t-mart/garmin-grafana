@@ -1994,9 +1994,73 @@
     {
       "id": 21,
       "gridPos": {
-        "h": 7,
-        "w": 24,
+        "h": 8,
+        "w": 12,
         "x": 0,
+        "y": 45
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Each bar starts at bedtime and ends at wake time. Bars for a week or a month show the average times. The Business Charts plugin draws it.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "baidu": {
+          "callback": "bmapReady",
+          "key": ""
+        },
+        "editor": {
+          "format": "auto"
+        },
+        "editorMode": "code",
+        "gaode": {
+          "key": "",
+          "plugin": "AMap.Scale,AMap.ToolBar"
+        },
+        "getOption": "const frame = context.panel.data.series[0];\nconst field = (name) => frame?.fields.find((item) => item.name === name);\nif (!field('Bedtime')) {\n  return {};\n}\n\nconst theme = context.grafana.theme;\nconst text = theme.colors.text.secondary;\nconst times = Array.from(field('Time').values);\nconst beds = Array.from(field('Bedtime').values);\nconst wakes = Array.from(field('Wake time').values);\nconst nights = times.flatMap((time, index) =>\n  beds[index] == null || wakes[index] == null ? [] : [[time, beds[index], wakes[index]]]\n);\nif (!nights.length) {\n  return {};\n}\n\n// The query counts hours from noon before each night, so a night never wraps past midnight.\nconst dayMs = 24 * 60 * 60 * 1000;\nconst periodMs = nights.slice(1).reduce((least, night, index) => Math.min(least, night[0] - nights[index][0]), Infinity);\nconst period = periodMs > 27 * dayMs ? 'month' : periodMs > 6 * dayMs ? 'week' : 'day';\nconst widthMs = Number.isFinite(periodMs) ? periodMs : dayMs;\nconst pad = (value) => String(value).padStart(2, '0');\nconst clock = (hours) => {\n  const minutes = Math.round((hours + 12) * 60) % (24 * 60);\n  return `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;\n};\nconst duration = (hours) => {\n  const minutes = Math.round(hours * 60);\n  return `${Math.floor(minutes / 60)}h ${pad(minutes % 60)}m`;\n};\nconst day = (ms) => new Date(ms).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });\n// Each time is the start of the day that the night ends on. Noon offsets stay clear of DST changes.\nconst at = (time, hours) => `${day(hours < 12 ? time - dayMs / 2 : time + dayMs / 2)} ${clock(hours)}`;\nconst describe = ([time, bed, wake]) => {\n  const length = `(${duration(wake - bed)})`;\n  if (period === 'day') {\n    return `${at(time, bed)} to ${at(time, wake)} ${length}`;\n  }\n  const label =\n    period === 'month'\n      ? new Date(time).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })\n      : `Week of ${day(time)}`;\n  return `${label}<br/>Average ${clock(bed)} to ${clock(wake)} ${length}`;\n};\nconst low = Math.floor(Math.min(...nights.map((night) => night[1])));\nconst high = Math.ceil(Math.max(...nights.map((night) => night[2])));\n\nconst renderItem = (params, api) => {\n  const start = api.coord([api.value(0), api.value(1)]);\n  const end = api.coord([api.value(0), api.value(2)]);\n  const width = api.size([widthMs, 0])[0] * 0.8;\n  return {\n    type: 'rect',\n    shape: { x: start[0] - width / 2, y: Math.min(start[1], end[1]), width, height: Math.abs(end[1] - start[1]) },\n    style: { fill: api.visual('color') },\n  };\n};\n\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: { formatter: (item) => describe(item.value) },\n  grid: { left: 8, right: 8, top: 8, bottom: 8, containLabel: true },\n  xAxis: {\n    type: 'time',\n    min: context.panel.data.timeRange.from.valueOf(),\n    max: context.panel.data.timeRange.to.valueOf(),\n    axisLabel: { color: text },\n  },\n  yAxis: {\n    type: 'value',\n    inverse: true,\n    min: low,\n    max: high,\n    interval: high - low > 8 ? 2 : 1,\n    axisLabel: { color: text, formatter: clock },\n    splitLine: { lineStyle: { color: theme.colors.border.weak } },\n  },\n  series: [\n    {\n      type: 'custom',\n      renderItem,\n      itemStyle: { color: theme.visualization.getColorByName('blue') },\n      encode: { x: 0, y: [1, 2] },\n      data: nights,\n    },\n  ],\n};\n",
+        "google": {
+          "callback": "gmapReady",
+          "key": ""
+        },
+        "map": "none",
+        "renderer": "canvas",
+        "themeEditor": {
+          "config": "{}",
+          "name": "default"
+        },
+        "visualEditor": {
+          "code": "",
+          "dataset": [],
+          "series": []
+        }
+      },
+      "pluginVersion": "7.2.5",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT date_trunc(${Bucket:sqlstring}, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS \"Time\", avg(extract(epoch FROM (\"sleepStartTimestampGMT\" AT TIME ZONE ${TimeZone:sqlstring}) - (\"calendarDate\" - 1 + time '12:00')) / 3600) AS \"Bedtime\", avg(extract(epoch FROM (\"sleepEndTimestampGMT\" AT TIME ZONE ${TimeZone:sqlstring}) - (\"calendarDate\" - 1 + time '12:00')) / 3600) AS \"Wake time\"\nFROM garmin.\"dailySleepDTO\"\nWHERE \"calendarDate\" >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
+          "format": "table"
+        }
+      ],
+      "title": "Sleep schedule",
+      "type": "volkovlabs-echarts-panel"
+    },
+    {
+      "id": 22,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
         "y": 45
       },
       "datasource": {
@@ -2084,6 +2148,10 @@
                 "value": "line"
               },
               {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
                 "id": "custom.lineWidth",
                 "value": 2
               },
@@ -2145,12 +2213,12 @@
       "type": "timeseries"
     },
     {
-      "id": 22,
+      "id": 23,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 53
       },
       "collapsed": false,
       "panels": [],
@@ -2158,12 +2226,12 @@
       "type": "row"
     },
     {
-      "id": 23,
+      "id": 24,
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 54
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -2250,6 +2318,10 @@
                 "value": "line"
               },
               {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
                 "id": "custom.lineWidth",
                 "value": 2
               },
@@ -2311,12 +2383,12 @@
       "type": "timeseries"
     },
     {
-      "id": 24,
+      "id": 25,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 61
+        "y": 62
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -2432,12 +2504,12 @@
       "type": "timeseries"
     },
     {
-      "id": 25,
+      "id": 26,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 61
+        "y": 62
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -2553,12 +2625,12 @@
       "type": "timeseries"
     },
     {
-      "id": 26,
+      "id": 27,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 69
+        "y": 70
       },
       "collapsed": false,
       "panels": [],
@@ -2566,12 +2638,12 @@
       "type": "row"
     },
     {
-      "id": 27,
+      "id": 28,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 70
+        "y": 71
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -2671,12 +2743,12 @@
       "type": "timeseries"
     },
     {
-      "id": 28,
+      "id": 29,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 70
+        "y": 71
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
