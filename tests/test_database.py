@@ -36,6 +36,8 @@ def expand(query: str, activity: str = "1") -> str:
         "${TimeZone:sqlstring}": "'America/Chicago'",
         "${Activity:sqlstring}": f"'{activity}'",
         "${Distance:sqlstring}": "'1 km'",
+        "${Group:sqlstring}": "'auto'",
+        "${Bucket:sqlstring}": "'week'",
         "$__interval_ms": "300000",
         "$__timeFrom()": "'2026-10-01T12:00:00Z'",
         "$__timeTo()": "'2026-10-09T00:00:00Z'",
