@@ -668,7 +668,45 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Resting HR"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "text",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.gradientMode",
+                "value": "none"
+              },
+              {
+                "id": "custom.lineInterpolation",
+                "value": "stepAfter"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
@@ -705,6 +743,18 @@
           "editorMode": "code",
           "rawQuery": true,
           "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"timestamp\", ${TimeZone:sqlstring}) AS time, avg(heartrate) AS \"Heart Rate\"\nFROM garmin.\"heartRateValues\"\nWHERE $__timeFilter(\"timestamp\")\nGROUP BY 1\nORDER BY 1",
+          "format": "time_series",
+          "hide": false
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT day.time, \"restingHeartRate\" AS \"Resting HR\"\nFROM garmin.usersummary\nCROSS JOIN LATERAL (VALUES (\"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}), ((\"calendarDate\" + 1)::timestamp AT TIME ZONE ${TimeZone:sqlstring} - interval '1 second')) AS day(time)\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nORDER BY 1",
           "format": "time_series",
           "hide": false
         }
@@ -751,7 +801,7 @@
       "transparent": true,
       "type": "timeseries",
       "interval": "2m",
-      "description": "Blue is below 60 bpm, green is 60 to 96, yellow is 96 to 110, and red is above 110, as in the distribution."
+      "description": "Blue is below 60 bpm, green is 60 to 96, yellow is 96 to 110, and red is above 110, as in the distribution. The dashed line is the resting heart rate for each day."
     },
     {
       "datasource": {
@@ -1175,75 +1225,38 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Restless Count"
+              "options": "Avg HRV"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "super-light-red",
+                  "fixedColor": "semi-dark-green",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "unit",
+                "value": "ms"
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "Awake Count"
+              "options": "Avg SpO2"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "dark-red",
+                  "fixedColor": "light-blue",
                   "mode": "fixed"
                 }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Avg Resting HR"
-            },
-            "properties": [
+              },
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "semi-dark-red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Avg Breathing Rate"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-purple",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Avg Stress"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "light-purple",
-                  "mode": "fixed"
-                }
+                "id": "unit",
+                "value": "percent"
               }
             ]
           }
@@ -1295,24 +1308,12 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"readingTimeGMT\", ${TimeZone:sqlstring}) AS time, avg(\"hrvValue\") AS \"Avg HRV\"\nFROM garmin.\"hrvReadings\"\nWHERE \"readingTimeGMT\" >= (date_trunc('day', $__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring}) AT TIME ZONE ${TimeZone:sqlstring}) AND \"readingTimeGMT\" <= $__timeTo()::timestamptz\nGROUP BY 1\nORDER BY 1",
-          "format": "time_series",
-          "hide": false
-        },
-        {
-          "refId": "D",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "garmin_timescaledb"
-          },
-          "editorMode": "code",
-          "rawQuery": true,
-          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS time, avg(\"restingHeartRate\") AS \"Avg Resting HR\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT time_bucket(($__interval_ms * interval '1 millisecond'), \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring}, ${TimeZone:sqlstring}) AS time, avg(\"lastNightAvg\") AS \"Avg HRV\"\nFROM garmin.\"hrvSummary\"\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
           "format": "time_series",
           "hide": false
         }
       ],
-      "title": "Resting heart rate, HRV, and SpO2",
+      "title": "HRV and SpO2",
       "type": "timeseries",
       "interval": "1d"
     },
