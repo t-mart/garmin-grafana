@@ -2865,6 +2865,254 @@
       ],
       "title": "Weight",
       "type": "timeseries"
+    },
+    {
+      "id": 30,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 79
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Dots are single days. The line is the average of the last 7 days. Weigh-ins without a body fat reading do not count.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 6,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "unit": "percent",
+          "decimals": 1
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Body fat"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-orange",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "points"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "7-day average"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time, \"Body fat\", \"7-day average\"\nFROM (SELECT \"calendarDate\", \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring} AS time, body_fat AS \"Body fat\", avg(body_fat) OVER (ORDER BY \"calendarDate\" RANGE BETWEEN interval '6 days' PRECEDING AND CURRENT ROW) AS \"7-day average\"\nFROM (SELECT \"calendarDate\", avg(nullif(\"bodyFat\", 0)) AS body_fat FROM garmin.\"allWeightMetrics\" GROUP BY 1) AS weigh_ins\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date - 6 AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date) AS days\nWHERE \"calendarDate\" >= ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nORDER BY 1",
+          "format": "time_series"
+        }
+      ],
+      "title": "Body fat",
+      "type": "timeseries"
+    },
+    {
+      "id": 31,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 79
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Dots are single days. The line is the average of the last 7 days. Garmin measures skeletal muscle mass. Weigh-ins without a muscle reading do not count.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 6,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "unit": "masslb",
+          "decimals": 1
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Muscle mass"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "points"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "7-day average"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT time, \"Muscle mass\", \"7-day average\"\nFROM (SELECT \"calendarDate\", \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring} AS time, muscle_mass AS \"Muscle mass\", avg(muscle_mass) OVER (ORDER BY \"calendarDate\" RANGE BETWEEN interval '6 days' PRECEDING AND CURRENT ROW) AS \"7-day average\"\nFROM (SELECT \"calendarDate\", avg(nullif(\"muscleMass\", 0)) / 453.59237 AS muscle_mass FROM garmin.\"allWeightMetrics\" GROUP BY 1) AS weigh_ins\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date - 6 AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date) AS days\nWHERE \"calendarDate\" >= ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nORDER BY 1",
+          "format": "time_series"
+        }
+      ],
+      "title": "Muscle mass",
+      "type": "timeseries"
     }
   ]
 }
