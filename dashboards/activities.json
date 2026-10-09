@@ -1585,59 +1585,10 @@
         "type": "grafana-postgresql-datasource",
         "uid": "garmin_timescaledb"
       },
+      "description": "Pace for each moment of the activity. Faster paces are higher. Moments slower than 30:00 per mile are left out. The Business Charts plugin draws it.",
       "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "drawStyle": "points",
-            "fillOpacity": 0,
-            "gradientMode": "scheme",
-            "lineWidth": 3,
-            "showPoints": "always",
-            "spanNulls": false,
-            "thresholdsStyle": {
-              "mode": "off"
-            },
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "pointSize": 5
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "semi-dark-green",
-                "value": null
-              },
-              {
-                "color": "light-green",
-                "value": 1159
-              },
-              {
-                "color": "#EAB839",
-                "value": 1609
-              }
-            ]
-          },
-          "unit": "dthms"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Elapsed"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "dthms"
-              }
-            ]
-          }
-        ]
+        "defaults": {},
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -1647,32 +1598,37 @@
       },
       "id": 47,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
+        "baidu": {
+          "callback": "bmapReady",
+          "key": ""
         },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
+        "editor": {
+          "format": "auto"
         },
-        "xField": "Elapsed"
+        "editorMode": "code",
+        "gaode": {
+          "key": "",
+          "plugin": "AMap.Scale,AMap.ToolBar"
+        },
+        "getOption": "const frame = context.panel.data.series[0];\nconst field = (name) => frame?.fields.find((item) => item.name === name);\nif (!field('Pace')) {\n  return {};\n}\n\nconst theme = context.grafana.theme;\nconst text = theme.colors.text.secondary;\nconst color = (name) => theme.visualization.getColorByName(name);\nconst elapsed = Array.from(field('Elapsed').values);\nconst paces = Array.from(field('Pace').values);\nconst clock = (seconds) => {\n  const total = Math.round(seconds);\n  const hours = Math.floor(total / 3600);\n  const minutes = String(Math.floor((total % 3600) / 60)).padStart(hours ? 2 : 1, '0');\n  const rest = `${minutes}:${String(total % 60).padStart(2, '0')}`;\n  return hours ? `${hours}:${rest}` : rest;\n};\n\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: { formatter: (item) => `${clock(item.value[0])}<br/>${clock(item.value[1])} /mi` },\n  grid: { left: 8, right: 16, top: 8, bottom: 8, containLabel: true },\n  visualMap: {\n    show: false,\n    dimension: 1,\n    pieces: [\n      { lt: 1159, color: color('semi-dark-green') },\n      { gte: 1159, lt: 1609, color: color('light-green') },\n      { gte: 1609, color: color('#EAB839') },\n    ],\n  },\n  xAxis: {\n    type: 'value',\n    min: 0,\n    max: 'dataMax',\n    axisLabel: { color: text, formatter: clock },\n    splitLine: { show: false },\n  },\n  // Inverse puts faster paces on top. The query leaves out paces slower than 30:00 per mile.\n  yAxis: {\n    type: 'value',\n    inverse: true,\n    min: (range) => Math.floor(range.min / 60) * 60,\n    max: (range) => Math.min(1800, Math.ceil(range.max / 60) * 60),\n    axisLabel: { color: text, formatter: clock },\n    splitLine: { lineStyle: { color: theme.colors.border.weak } },\n  },\n  series: [{ type: 'scatter', symbolSize: 5, data: elapsed.map((value, index) => [value, paces[index]]) }],\n};\n",
+        "google": {
+          "callback": "gmapReady",
+          "key": ""
+        },
+        "map": "none",
+        "renderer": "canvas",
+        "themeEditor": {
+          "config": "{}",
+          "name": "default"
+        },
+        "visualEditor": {
+          "code": "",
+          "dataset": [],
+          "series": []
+        }
       },
-      "pluginVersion": "13.0.2",
+      "pluginVersion": "7.2.5",
       "targets": [
-        {
-          "refId": "A",
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "garmin_timescaledb"
-          },
-          "editorMode": "code",
-          "rawQuery": true,
-          "rawSql": "SELECT \"timestamp\" AS \"Time\", extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Elapsed\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring}\nORDER BY \"timestamp\"",
-          "format": "table",
-          "hide": false
-        },
         {
           "refId": "B",
           "datasource": {
@@ -1681,31 +1637,13 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"timestamp\" AS \"Time\", 1609.344 / coalesce(enhanced_speed, speed) AS \"Pace\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring} AND coalesce(enhanced_speed, speed) > 0.894\nORDER BY \"timestamp\"",
+          "rawSql": "SELECT extract(epoch FROM \"timestamp\" - (SELECT \"startTimeGMT\" FROM garmin.activities WHERE \"activityId\" = ${Activity:sqlstring})) AS \"Elapsed\", 1609.344 / coalesce(enhanced_speed, speed) AS \"Pace\"\nFROM garmin.fit_record\nWHERE \"activityId\" = ${Activity:sqlstring} AND coalesce(enhanced_speed, speed) > 0.894\nORDER BY \"timestamp\"",
           "format": "table",
           "hide": false
         }
       ],
       "title": "Pace (min/mi)",
-      "transformations": [
-        {
-          "id": "joinByField",
-          "options": {
-            "byField": "Time",
-            "mode": "outer"
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            }
-          }
-        }
-      ],
-      "type": "trend",
-      "description": "Pace for each moment of the activity. Moments slower than 30:00 per mile are left out."
+      "type": "volkovlabs-echarts-panel"
     },
     {
       "datasource": {
