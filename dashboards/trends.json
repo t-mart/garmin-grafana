@@ -2754,7 +2754,7 @@
         "type": "grafana-postgresql-datasource",
         "uid": "garmin_timescaledb"
       },
-      "description": "Average of the weigh-ins on each day.",
+      "description": "Dots are single days. The line is the average of the last 7 days. Each dot is the average of the weigh-ins on that day.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2782,7 +2782,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "always",
+            "showPoints": "never",
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -2801,6 +2801,25 @@
             "matcher": {
               "id": "byName",
               "options": "Weight"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "light-yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.drawStyle",
+                "value": "points"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "7-day average"
             },
             "properties": [
               {
@@ -2840,7 +2859,7 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(weight) / 453.59237 AS \"Weight\"\nFROM garmin.\"allWeightMetrics\"\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT time, \"Weight\", \"7-day average\"\nFROM (SELECT \"calendarDate\", \"calendarDate\"::timestamp AT TIME ZONE ${TimeZone:sqlstring} AS time, weight AS \"Weight\", avg(weight) OVER (ORDER BY \"calendarDate\" RANGE BETWEEN interval '6 days' PRECEDING AND CURRENT ROW) AS \"7-day average\"\nFROM (SELECT \"calendarDate\", avg(weight) / 453.59237 AS weight FROM garmin.\"allWeightMetrics\" GROUP BY 1) AS weigh_ins\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date - 6 AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date) AS days\nWHERE \"calendarDate\" >= ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nORDER BY 1",
           "format": "time_series"
         }
       ],
