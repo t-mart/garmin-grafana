@@ -3092,7 +3092,7 @@
         "type": "grafana-postgresql-datasource",
         "uid": "garmin_timescaledb"
       },
-      "description": "Average heart rate while running at this pace. Samples count after 90 seconds at this pace, because heart rate rises at the start of an effort. Periods with less than 5 minutes stay empty. Group bars by sets the period. Heat raises this value.",
+      "description": "Average heart rate while running at this pace. Pace is the average of the last 90 seconds of running. Periods with less than 5 minutes stay empty. Group bars by sets the period. Heat raises this value.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3178,11 +3178,11 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "WITH samples AS (SELECT r.\"activityId\", r.\"timestamp\", r.heart_rate, a.\"startTimeLocal\", r.cadence >= 70 AND r.enhanced_speed BETWEEN 1.9159 AND 2.6822 AS in_band\nFROM garmin.fit_record r\nJOIN garmin.activities a USING (\"activityId\")\nWHERE r.heart_rate > 0 AND a.\"startTimeLocal\"::date >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND a.\"startTimeLocal\"::date <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date),\nsteady AS (SELECT *, count(*) FILTER (WHERE in_band) OVER (PARTITION BY \"activityId\" ORDER BY \"timestamp\" RANGE BETWEEN interval '89 seconds' PRECEDING AND CURRENT ROW) AS seconds_in_band\nFROM samples)\nSELECT date_trunc(${Bucket:sqlstring}, \"startTimeLocal\") AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(heart_rate) AS \"Heart rate\"\nFROM steady\nWHERE in_band AND seconds_in_band >= 82\nGROUP BY 1\nHAVING count(*) >= 300\nORDER BY 1",
+          "rawSql": "WITH samples AS (SELECT r.\"activityId\", r.\"timestamp\", r.heart_rate, r.enhanced_speed, a.\"startTimeLocal\", coalesce(r.cadence, 0) >= 70 AS running\nFROM garmin.fit_record r\nJOIN garmin.activities a USING (\"activityId\")\nWHERE r.heart_rate > 0 AND r.enhanced_speed > 0 AND a.\"startTimeLocal\"::date >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND a.\"startTimeLocal\"::date <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date),\nsteady AS (SELECT *, count(*) FILTER (WHERE running) OVER recent AS seconds_running, avg(enhanced_speed) FILTER (WHERE running) OVER recent AS recent_speed\nFROM samples\nWINDOW recent AS (PARTITION BY \"activityId\" ORDER BY \"timestamp\" RANGE BETWEEN interval '89 seconds' PRECEDING AND CURRENT ROW))\nSELECT date_trunc(${Bucket:sqlstring}, \"startTimeLocal\") AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(heart_rate) AS \"Heart rate\"\nFROM steady\nWHERE running AND seconds_running >= 82 AND recent_speed BETWEEN 2.1037 AND 2.2828\nGROUP BY 1\nHAVING count(*) >= 300\nORDER BY 1",
           "format": "time_series"
         }
       ],
-      "title": "Heart rate at 10:00 to 14:00/mi",
+      "title": "Heart rate at 11:45 to 12:45/mi",
       "type": "timeseries"
     },
     {
