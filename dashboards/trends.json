@@ -719,7 +719,7 @@
       "id": 7,
       "gridPos": {
         "h": 4,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 4
       },
@@ -775,8 +775,8 @@
       "id": 8,
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 4
       },
       "datasource": {
@@ -831,8 +831,8 @@
       "id": 9,
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 4
       },
       "datasource": {
@@ -881,6 +881,62 @@
         }
       ],
       "title": "Body Battery charged per day",
+      "type": "stat"
+    },
+    {
+      "id": 32,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Latest value on or before the end of the time range. Garmin updates VO2 max after some activities.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": false
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT \"vo2MaxPreciseValue\" AS \"Value\"\nFROM garmin.maxmet\nWHERE key = 'generic' AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date\nORDER BY \"calendarDate\" DESC\nLIMIT 1",
+          "format": "table"
+        }
+      ],
+      "title": "VO2 max",
       "type": "stat"
     },
     {
