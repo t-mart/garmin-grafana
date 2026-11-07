@@ -831,7 +831,7 @@
       "id": 9,
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 4,
         "x": 12,
         "y": 4
       },
@@ -887,8 +887,8 @@
       "id": 32,
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 16,
         "y": 4
       },
       "datasource": {
@@ -937,6 +937,62 @@
         }
       ],
       "title": "VO2 max",
+      "type": "stat"
+    },
+    {
+      "id": 39,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 4
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Average of the 7 days up to the last weigh-in in the time range. This matches the end of the line on the Weight chart.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "unit": "masslb"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": false
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT avg(weight) AS \"Value\"\nFROM (SELECT \"calendarDate\", avg(weight) / 453.59237 AS weight FROM garmin.\"allWeightMetrics\" GROUP BY 1) AS weigh_ins\nWHERE \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" >= (SELECT max(\"calendarDate\") FROM garmin.\"allWeightMetrics\" WHERE \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date) - 6",
+          "format": "table"
+        }
+      ],
+      "title": "Weight",
       "type": "stat"
     },
     {
