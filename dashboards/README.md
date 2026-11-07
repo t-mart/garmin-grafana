@@ -19,7 +19,9 @@ Health shows metrics within the time range. Daily averages include complete loca
 Trends shows one value for each day or night. Its default time range is the last 30 days.
 Each bar shows the average per day in its period. The Group bars by variable sets the period.
 Auto uses days up to 100 days, weeks up to two years, and months after that.
+Intensity minutes per week and Active days per week show the average per 7-day week. Day uses weeks for these two panels, because the 150-minute guideline is weekly.
 Line charts show each day as a dot and the average of the last 7 days as a line.
+Heart rate at a fixed pace and Heart rate recovery show one dot for each period.
 Day totals exclude today. Night values include last night.
 The Garmin links in Day and Trends do not keep the time range, because the two dashboards need different ranges.
 To see a Trends range in Day, zoom in and select Open this range in Day.

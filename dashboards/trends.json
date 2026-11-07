@@ -2282,12 +2282,367 @@
       "type": "row"
     },
     {
+      "id": 33,
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 54
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Complete weeks in the time range with at least 150 intensity minutes. Weeks start on Monday. Vigorous minutes count twice.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Value$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": false
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*) FILTER (WHERE minutes >= 150) || ' of ' || count(*) AS \"Value\"\nFROM (SELECT sum(coalesce(\"moderateIntensityMinutes\", 0) + 2 * coalesce(\"vigorousIntensityMinutes\", 0)) AS minutes\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY date_trunc('week', \"calendarDate\"::timestamp)\nHAVING count(*) = 7) AS weeks",
+          "format": "table"
+        }
+      ],
+      "title": "Weeks at 150+",
+      "type": "stat"
+    },
+    {
+      "id": 34,
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 54
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Most days in a row with no recorded activity in the time range. Today counts after it ends.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "decimals": 0,
+          "unit": "suffix: days"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": false
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(max(rest_days), 0) AS \"Value\"\nFROM (SELECT count(*) FILTER (WHERE NOT active) AS rest_days\nFROM (SELECT active, count(*) FILTER (WHERE active) OVER (ORDER BY \"calendarDate\") AS streak\nFROM (SELECT \"calendarDate\", EXISTS (SELECT 1 FROM garmin.activities WHERE \"startTimeLocal\"::date = \"calendarDate\") AS active\nFROM garmin.usersummary\nWHERE \"calendarDate\" BETWEEN ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date) AS days) AS runs\nGROUP BY streak) AS gaps",
+          "format": "table"
+        }
+      ],
+      "title": "Longest gap",
+      "type": "stat"
+    },
+    {
+      "id": 26,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 58
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Average per 7-day week in each bar. Group bars by sets the bar period. Day uses weeks. Totals exclude today. Vigorous minutes count twice, as in Garmin Connect. The line marks the guideline of 150 minutes.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "fillOpacity": 90,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 0,
+            "pointSize": 6,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            },
+            "drawStyle": "bars",
+            "axisSoftMax": 200
+          },
+          "mappings": [],
+          "unit": "m",
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "text",
+                "value": 150
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Moderate"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FFEE52",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Vigorous"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF7383",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT date_trunc(CASE ${Bucket:sqlstring} WHEN 'month' THEN 'month' ELSE 'week' END, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS time, 7 * avg(coalesce(\"moderateIntensityMinutes\", 0)) AS \"Moderate\", 7 * avg(2 * coalesce(\"vigorousIntensityMinutes\", 0)) AS \"Vigorous\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" >= date_trunc(CASE ${Bucket:sqlstring} WHEN 'month' THEN 'month' ELSE 'week' END, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
+          "format": "time_series"
+        }
+      ],
+      "title": "Intensity minutes per week",
+      "type": "timeseries"
+    },
+    {
+      "id": 35,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 58
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Average days with a recorded activity per 7-day week in each bar. Group bars by sets the bar period. Day uses weeks. Totals exclude today.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "fillOpacity": 90,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 0,
+            "pointSize": 6,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "drawStyle": "bars"
+          },
+          "mappings": [],
+          "unit": "none",
+          "min": 0,
+          "decimals": 1,
+          "max": 7
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Active days"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#5794F2",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT date_trunc(CASE ${Bucket:sqlstring} WHEN 'month' THEN 'month' ELSE 'week' END, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS time, 7 * avg((EXISTS (SELECT 1 FROM garmin.activities WHERE \"startTimeLocal\"::date = \"calendarDate\"))::int) AS \"Active days\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" >= date_trunc(CASE ${Bucket:sqlstring} WHEN 'month' THEN 'month' ELSE 'week' END, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
+          "format": "time_series"
+        }
+      ],
+      "title": "Active days per week",
+      "type": "timeseries"
+    },
+    {
       "id": 24,
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 66
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -2444,7 +2799,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 62
+        "y": 74
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -2560,18 +2915,18 @@
       "type": "timeseries"
     },
     {
-      "id": 26,
+      "id": 36,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 62
+        "y": 74
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
         "uid": "garmin_timescaledb"
       },
-      "description": "Average per day in each bar. Group bars by sets the bar period. Day totals exclude today. Vigorous minutes count twice, as in Garmin Connect.",
+      "description": "Average per day in each bar, including days with no activity. Group bars by sets the bar period. Day totals exclude today. Garmin sets the zones, and its zone limits can change over time.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2611,20 +2966,20 @@
             "drawStyle": "bars"
           },
           "mappings": [],
-          "unit": "m",
+          "unit": "dthms",
           "min": 0
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Moderate"
+              "options": "Zone 1"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#FFEE52",
+                  "fixedColor": "#FFDFB3",
                   "mode": "fixed"
                 }
               }
@@ -2633,13 +2988,58 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Vigorous"
+              "options": "Zone 2"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#FF7383",
+                  "fixedColor": "#FFB357",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Zone 3"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF8A1F",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Zone 4"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#E05A00",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Zone 5"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#B34700",
                   "mode": "fixed"
                 }
               }
@@ -2673,11 +3073,221 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT date_trunc(${Bucket:sqlstring}, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(\"moderateIntensityMinutes\") AS \"Moderate\", avg(2 * \"vigorousIntensityMinutes\") AS \"Vigorous\"\nFROM garmin.usersummary\nWHERE \"calendarDate\" >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND \"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND \"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "SELECT date_trunc(${Bucket:sqlstring}, \"calendarDate\"::timestamp) AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(zone_1) AS \"Zone 1\", avg(zone_2) AS \"Zone 2\", avg(zone_3) AS \"Zone 3\", avg(zone_4) AS \"Zone 4\", avg(zone_5) AS \"Zone 5\"\nFROM (SELECT u.\"calendarDate\", coalesce(sum(a.\"hrTimeInZone_1\"), 0) AS zone_1, coalesce(sum(a.\"hrTimeInZone_2\"), 0) AS zone_2, coalesce(sum(a.\"hrTimeInZone_3\"), 0) AS zone_3, coalesce(sum(a.\"hrTimeInZone_4\"), 0) AS zone_4, coalesce(sum(a.\"hrTimeInZone_5\"), 0) AS zone_5\nFROM garmin.usersummary u\nLEFT JOIN garmin.activities a ON a.\"startTimeLocal\"::date = u.\"calendarDate\"\nWHERE u.\"calendarDate\" >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND u.\"calendarDate\" <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date AND u.\"calendarDate\" < (now() AT TIME ZONE ${TimeZone:sqlstring})::date\nGROUP BY 1) AS days\nGROUP BY 1\nORDER BY 1",
           "format": "time_series"
         }
       ],
-      "title": "Intensity minutes",
+      "title": "Time in heart rate zones",
+      "type": "timeseries"
+    },
+    {
+      "id": 37,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 82
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Average heart rate while running at this pace. Samples count after 90 seconds at this pace, because heart rate rises at the start of an effort. Periods with less than 5 minutes stay empty. Group bars by sets the period. Heat raises this value.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 6,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "unit": "suffix: bpm",
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Heart rate"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "WITH samples AS (SELECT r.\"activityId\", r.\"timestamp\", r.heart_rate, a.\"startTimeLocal\", r.cadence >= 70 AND r.enhanced_speed BETWEEN 1.9159 AND 2.6822 AS in_band\nFROM garmin.fit_record r\nJOIN garmin.activities a USING (\"activityId\")\nWHERE r.heart_rate > 0 AND a.\"startTimeLocal\"::date >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND a.\"startTimeLocal\"::date <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date),\nsteady AS (SELECT *, count(*) FILTER (WHERE in_band) OVER (PARTITION BY \"activityId\" ORDER BY \"timestamp\" RANGE BETWEEN interval '89 seconds' PRECEDING AND CURRENT ROW) AS seconds_in_band\nFROM samples)\nSELECT date_trunc(${Bucket:sqlstring}, \"startTimeLocal\") AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(heart_rate) AS \"Heart rate\"\nFROM steady\nWHERE in_band AND seconds_in_band >= 82\nGROUP BY 1\nHAVING count(*) >= 300\nORDER BY 1",
+          "format": "time_series"
+        }
+      ],
+      "title": "Heart rate at 10:00 to 14:00/mi",
+      "type": "timeseries"
+    },
+    {
+      "id": 38,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 82
+      },
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "Average drop in heart rate during the 60 seconds after a hard run stops. A hard run lasts at least 1 minute and ends at 160 bpm or more. Higher is better. Group bars by sets the period.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.8,
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 6,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "unit": "suffix: bpm",
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Recovery"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#5794F2",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "WITH samples AS (SELECT r.\"activityId\", r.\"timestamp\", r.heart_rate, a.\"startTimeLocal\", coalesce(r.cadence, 0) >= 70 AS running\nFROM garmin.fit_record r\nJOIN garmin.activities a USING (\"activityId\")\nWHERE r.heart_rate > 0 AND a.\"startTimeLocal\"::date >= date_trunc(${Bucket:sqlstring}, ($__timeFrom()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date::timestamp) AND a.\"startTimeLocal\"::date <= ($__timeTo()::timestamptz AT TIME ZONE ${TimeZone:sqlstring})::date),\nstops AS (SELECT *, lag(running) OVER activity AS was_running, count(*) FILTER (WHERE running) OVER before AS seconds_running, count(*) FILTER (WHERE NOT running) OVER after AS seconds_stopped, last_value(heart_rate) OVER after AS heart_rate_after\nFROM samples\nWINDOW activity AS (PARTITION BY \"activityId\" ORDER BY \"timestamp\"), before AS (activity RANGE BETWEEN interval '60 seconds' PRECEDING AND interval '1 second' PRECEDING), after AS (activity RANGE BETWEEN CURRENT ROW AND interval '60 seconds' FOLLOWING))\nSELECT date_trunc(${Bucket:sqlstring}, \"startTimeLocal\") AT TIME ZONE ${TimeZone:sqlstring} AS time, avg(heart_rate - heart_rate_after) AS \"Recovery\"\nFROM stops\nWHERE was_running AND NOT running AND seconds_running >= 55 AND seconds_stopped >= 55 AND heart_rate >= 160\nGROUP BY 1\nORDER BY 1",
+          "format": "time_series"
+        }
+      ],
+      "title": "Heart rate recovery",
       "type": "timeseries"
     },
     {
@@ -2686,7 +3296,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 90
       },
       "collapsed": false,
       "panels": [],
@@ -2699,7 +3309,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 71
+        "y": 91
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -2804,7 +3414,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 71
+        "y": 91
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -2928,7 +3538,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 79
+        "y": 99
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
@@ -3052,7 +3662,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 79
+        "y": 99
       },
       "datasource": {
         "type": "grafana-postgresql-datasource",
