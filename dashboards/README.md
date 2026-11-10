@@ -26,6 +26,7 @@ Day totals exclude today. Night values include last night.
 The Garmin links in Day and Trends do not keep the time range, because the two dashboards need different ranges.
 To see a Trends range in Day, zoom in and select Open this range in Day.
 Records shows the fastest effort in each run and the record progression across imported history.
+It also shows the five fastest runs at each distance, and the running miles in the best week and month.
 Its Distance variable reads the distances that have recorded efforts.
 
 The queries read tables in the `garmin` schema. Distances, speeds, temperatures, and weights use imperial display units.

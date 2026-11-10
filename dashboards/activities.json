@@ -2470,7 +2470,6 @@
           }
         }
       ],
-      "transparent": true,
       "type": "trend"
     },
     {
@@ -2630,7 +2629,6 @@
           "options": {}
         }
       ],
-      "transparent": true,
       "type": "xychart"
     }
   ],

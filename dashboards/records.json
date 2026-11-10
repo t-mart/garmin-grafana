@@ -154,6 +154,101 @@
         "type": "grafana-postgresql-datasource",
         "uid": "garmin_timescaledb"
       },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "unit": "lengthmi",
+          "custom": {}
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Miles"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "${__data.fields.Title}"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/Miles|__data\\.fields\\.Title/",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "WITH runs AS (SELECT a.\"startTimeLocal\"::date AS day, a.distance / 1609.344 AS miles FROM garmin.activities a JOIN garmin.\"activityType\" t ON t.\"typeId\" = a.\"activityType\" WHERE t.\"typeKey\" LIKE '%running%' AND a.distance IS NOT NULL) (SELECT sum(miles) AS \"Miles\", 'Best week: ' || to_char(date_trunc('week', day), 'Mon FMDD') || ' to ' || to_char(date_trunc('week', day) + interval '6 days', 'Mon FMDD, YYYY') AS \"Title\", 1 AS \"Order\" FROM runs GROUP BY date_trunc('week', day) ORDER BY 1 DESC, date_trunc('week', day) LIMIT 1)\nUNION ALL (SELECT sum(miles), 'Best month: ' || to_char(date_trunc('month', day), 'FMMonth YYYY'), 2 FROM runs GROUP BY date_trunc('month', day) ORDER BY 1 DESC, date_trunc('month', day) LIMIT 1)\nORDER BY 3",
+          "format": "table",
+          "hide": false
+        }
+      ],
+      "title": "Most miles",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Order"
+              }
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Order": true
+            }
+          }
+        }
+      ],
+      "type": "stat",
+      "pluginVersion": "13.0.2"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
       "description": "Each dot is the fastest stretch of this distance inside one run. The line is the record at each date. Large dots set a new record.",
       "fieldConfig": {
         "defaults": {
@@ -294,7 +389,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 6
+        "y": 10
       },
       "id": 3,
       "maxPerRow": 3,
@@ -376,13 +471,93 @@
           },
           "editorMode": "code",
           "rawQuery": true,
-          "rawSql": "SELECT a.\"startTimeGMT\" AS \"Time\", e.seconds AS \"Effort\", min(e.seconds) OVER (w ROWS UNBOUNDED PRECEDING) AS \"Record at the time\", CASE WHEN e.seconds < coalesce(min(e.seconds) OVER (w ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING), 'Infinity') THEN 1 ELSE 0 END AS \"New record\", e.duration AS \"Duration\", e.pace AS \"Pace\", a.\"activityName\" AS \"Run\", e.activity_id AS \"ActivityID\"\nFROM garmin.best_effort e JOIN garmin.activities a ON a.\"activityId\" = e.activity_id\nWHERE e.distance IN (${Distance:sqlstring})\nWINDOW w AS (PARTITION BY e.distance ORDER BY a.\"startTimeGMT\", e.activity_id)\nORDER BY a.\"startTimeGMT\"",
+          "rawSql": "(SELECT a.\"startTimeGMT\" AS \"Time\", e.seconds AS \"Effort\", min(e.seconds) OVER (w ROWS UNBOUNDED PRECEDING) AS \"Record at the time\", CASE WHEN e.seconds < coalesce(min(e.seconds) OVER (w ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING), 'Infinity') THEN 1 ELSE 0 END AS \"New record\", e.duration AS \"Duration\", e.pace AS \"Pace\", a.\"activityName\" AS \"Run\", e.activity_id AS \"ActivityID\"\nFROM garmin.best_effort e JOIN garmin.activities a ON a.\"activityId\" = e.activity_id\nWHERE e.distance IN (${Distance:sqlstring})\nWINDOW w AS (PARTITION BY e.distance ORDER BY a.\"startTimeGMT\", e.activity_id))\nUNION ALL\nSELECT now(), NULL, min(e.seconds), NULL, NULL, NULL, NULL, NULL\nFROM garmin.best_effort e\nWHERE e.distance IN (${Distance:sqlstring})\nGROUP BY e.distance\nORDER BY 1",
           "format": "table",
           "hide": false
         }
       ],
       "title": "$Distance",
       "type": "xychart",
+      "pluginVersion": "13.0.2"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "garmin_timescaledb"
+      },
+      "description": "The five fastest efforts at this distance. Each run counts one time.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Run"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Show this run",
+                    "url": "/d/garmin-activities?var-Activity=${__data.fields.ActivityID}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ActivityID"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 19
+      },
+      "id": 7,
+      "maxPerRow": 3,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "repeat": "Distance",
+      "repeatDirection": "h",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "garmin_timescaledb"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT * FROM (SELECT row_number() OVER (PARTITION BY e.distance ORDER BY e.seconds, a.\"startTimeGMT\", e.activity_id) AS \"Rank\", e.duration AS \"Time\", e.pace AS \"Pace\", to_char(a.\"startTimeLocal\", 'Mon FMDD, YYYY') AS \"Date\", a.\"activityName\" AS \"Run\", e.activity_id AS \"ActivityID\"\nFROM garmin.best_effort e JOIN garmin.activities a ON a.\"activityId\" = e.activity_id\nWHERE e.distance IN (${Distance:sqlstring})) top\nWHERE \"Rank\" <= 5\nORDER BY \"Rank\"",
+          "format": "table",
+          "hide": false
+        }
+      ],
+      "title": "Fastest $Distance runs",
+      "type": "table",
       "pluginVersion": "13.0.2"
     },
     {
@@ -509,7 +684,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 26
       },
       "id": 63,
       "options": {
@@ -590,7 +765,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 36
       },
       "id": 4,
       "panels": [],
@@ -631,7 +806,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 37
       },
       "id": 5,
       "options": {
